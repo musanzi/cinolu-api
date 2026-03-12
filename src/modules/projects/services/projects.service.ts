@@ -119,7 +119,7 @@ export class ProjectsService {
       return await this.projectRepository.find({
         order: { ended_at: 'DESC' },
         where: { is_published: true },
-        take: 5
+        take: 6
       });
     } catch {
       throw new BadRequestException();

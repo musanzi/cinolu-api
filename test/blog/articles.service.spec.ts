@@ -61,9 +61,9 @@ describe('ArticlesService', () => {
     const { service, articlesRepository } = setup();
     articlesRepository.save.mockRejectedValue(new Error('bad'));
 
-    await expect(service.create({ title: 'A', content: 'B', tags: ['t1'] } as any, { id: 'u1' } as any)).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+    await expect(
+      service.create({ title: 'A', content: 'B', tags: ['t1'] } as any, { id: 'u1' } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('toggles highlight flag', async () => {
@@ -82,7 +82,7 @@ describe('ArticlesService', () => {
     await expect(service.findRecent()).resolves.toEqual([{ id: 'a1' }]);
     expect(articlesRepository.find).toHaveBeenCalledWith({
       order: { created_at: 'DESC' },
-      take: 5,
+      take: 6,
       relations: ['tags', 'author']
     });
   });
@@ -90,7 +90,10 @@ describe('ArticlesService', () => {
   it('findAll applies published filter, search, and page window', async () => {
     const { service, queryBuilder } = setup();
 
-    await expect(service.findAll({ filter: 'published', q: 'nestjs', page: '2' } as any)).resolves.toEqual([[{ id: 'a1' }], 1]);
+    await expect(service.findAll({ filter: 'published', q: 'nestjs', page: '2' } as any)).resolves.toEqual([
+      [{ id: 'a1' }],
+      1
+    ]);
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('a.published_at IS NOT NULL AND a.published_at <= NOW()');
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('a.title LIKE :search OR a.content LIKE :search', {
       search: '%nestjs%'
@@ -148,10 +151,16 @@ describe('ArticlesService', () => {
     });
 
     await service.togglePublished('a1');
-    expect(articlesRepository.save).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: 'a1', published_at: expect.any(Date) }));
+    expect(articlesRepository.save).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ id: 'a1', published_at: expect.any(Date) })
+    );
 
     await service.togglePublished('a1');
-    expect(articlesRepository.save).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: 'a1', published_at: null }));
+    expect(articlesRepository.save).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ id: 'a1', published_at: null })
+    );
   });
 
   it('finds one by id', async () => {
@@ -175,7 +184,10 @@ describe('ArticlesService', () => {
       id: 'a1',
       tags: [{ id: 't1' }]
     });
-    expect(articlesRepository.merge).toHaveBeenCalledWith(existing, expect.objectContaining({ title: 'Updated', tags: [{ id: 't1' }] }));
+    expect(articlesRepository.merge).toHaveBeenCalledWith(
+      existing,
+      expect.objectContaining({ title: 'Updated', tags: [{ id: 't1' }] })
+    );
   });
 
   it('throws on update failure when tags are missing', async () => {

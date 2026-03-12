@@ -43,7 +43,7 @@ export class ArticlesService {
     try {
       return await this.articlesRepository.find({
         order: { created_at: 'DESC' },
-        take: 5,
+        take: 6,
         relations: ['tags', 'author']
       });
     } catch {

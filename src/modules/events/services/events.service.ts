@@ -94,7 +94,7 @@ export class EventsService {
         order: { ended_at: 'DESC' },
         relations: ['categories'],
         where: { is_published: true },
-        take: 5
+        take: 6
       });
     } catch {
       throw new BadRequestException();
@@ -153,5 +153,4 @@ export class EventsService {
       throw new BadRequestException();
     }
   }
-
 }
