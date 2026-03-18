@@ -17,7 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           }
         },
         defaults: {
-          from: `Support CINOLU <${config.get('MAIL_USERNAME')}>`
+          from: `One Stop Support <${config.get('MAIL_USERNAME')}>`
         },
         isGlobal: true
       })
