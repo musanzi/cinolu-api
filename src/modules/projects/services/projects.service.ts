@@ -73,12 +73,7 @@ export class ProjectsService {
       return await this.projectRepository
         .createQueryBuilder('project')
         .leftJoinAndSelect('project.categories', 'categories')
-        .leftJoinAndSelect('project.project_manager', 'project_manager')
-        .leftJoinAndSelect('project.program', 'subprogram')
-        .leftJoinAndSelect('subprogram.program', 'program')
         .leftJoinAndSelect('project.phases', 'phases')
-        .leftJoinAndSelect('phases.mentors', 'mentors')
-        .leftJoinAndSelect('mentors.owner', 'owner')
         .loadRelationCountAndMap('project.participantsCount', 'project.participations')
         .where('owner.id = :userId', { userId })
         .orderBy('project.updated_at', 'DESC')
@@ -88,31 +83,6 @@ export class ProjectsService {
       throw new BadRequestException();
     }
   }
-
-  // async findMentorProject(projectId: string, userId: string): Promise<Project> {
-  //   try {
-  //     return await this.projectRepository
-  //       .createQueryBuilder('project')
-  //       .distinct(true)
-  //       .leftJoinAndSelect('project.categories', 'categories')
-  //       .leftJoinAndSelect('project.project_manager', 'project_manager')
-  //       .leftJoinAndSelect('project.program', 'subprogram')
-  //       .leftJoinAndSelect('subprogram.program', 'program')
-  //       .leftJoinAndSelect('project.gallery', 'gallery')
-  //       .leftJoinAndSelect('project.phases', 'phases')
-  //       .leftJoinAndSelect('phases.mentors', 'mentors')
-  //       .leftJoinAndSelect('mentors.owner', 'owner')
-  //       .leftJoinAndSelect('phases.deliverables', 'deliverables')
-  //       .loadRelationCountAndMap('project.participantsCount', 'project.participations')
-  //       .loadRelationCountAndMap('phases.participationsCount', 'phases.participations')
-  //       .where('project.id = :projectId', { projectId })
-  //       .andWhere('owner.id = :userId', { userId })
-  //       .orderBy('phases.started_at', 'ASC')
-  //       .getOneOrFail();
-  //   } catch {
-  //     throw new NotFoundException();
-  //   }
-  // }
 
   async findRecent(): Promise<Project[]> {
     try {
