@@ -184,60 +184,6 @@ Migration files are stored in:
 src/shared/database/migrations/
 ```
 
-## API Modules
-
-This API is organized into domain modules.
-
-### Authentication
-
-- `/auth`
-
-### Users and Roles
-
-- `/users`
-- `/roles`
-
-### Programs
-
-- `/programs`
-- `/program-categories`
-- `/subprograms`
-
-### Projects
-
-- `/projects`
-- `/project-categories`
-- `/phases`
-- `/deliverables`
-- `/resources`
-
-### Events
-
-- `/events`
-- `/event-categories`
-
-### Mentors
-
-- `/mentors`
-- `/expertises`
-
-### Ventures
-
-- `/ventures`
-- `/products`
-
-### Blog
-
-- `/articles`
-- `/comments`
-- `/tags`
-
-### Other Platform Modules
-
-- `/highlights`
-- `/notifications`
-- `/stats`
-
 ## Runtime Behavior
 
 A few relevant runtime details from the current app setup:
@@ -258,7 +204,8 @@ A few relevant runtime details from the current app setup:
 
 ## License
 
-This project is marked as **UNLICENSED**.
+This project is licensed under the **MIT License**.
+See the [LICENSE](./LICENSE) file for details.
 
 ## Author
 
