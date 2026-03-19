@@ -22,8 +22,8 @@ export class ResourcesService {
       const resource = this.resourceRepository.create({
         ...dto,
         file: file.filename,
-        project: dto.project_id ? { id: dto.project_id } : null,
-        phase: dto.phase_id ? { id: dto.phase_id } : null
+        project: { id: dto.project_id },
+        phase: { id: dto.phase_id }
       });
       return await this.resourceRepository.save(resource);
     } catch {
@@ -34,7 +34,7 @@ export class ResourcesService {
   async findByProject(projectId: string, queryParams: FilterResourcesDto): Promise<[Resource[], number]> {
     try {
       await this.projectsService.findOne(projectId);
-      return await this.buildScopedQuery('resource.projectId = :scopeId', projectId, queryParams).getManyAndCount();
+      return await this.buildScopedQuery('r.projectId = :scopeId', projectId, queryParams).getManyAndCount();
     } catch {
       throw new NotFoundException();
     }
@@ -43,7 +43,7 @@ export class ResourcesService {
   async findByPhase(phaseId: string, queryParams: FilterResourcesDto): Promise<[Resource[], number]> {
     try {
       await this.phasesService.findOne(phaseId);
-      return await this.buildScopedQuery('resource.phaseId = :scopeId', phaseId, queryParams).getManyAndCount();
+      return await this.buildScopedQuery('r.phaseId = :scopeId', phaseId, queryParams).getManyAndCount();
     } catch {
       throw new NotFoundException();
     }
@@ -95,12 +95,11 @@ export class ResourcesService {
     const { page = 1, category } = queryParams;
     const skip = (+page - 1) * 20;
     const query = this.resourceRepository
-      .createQueryBuilder('resource')
-      .leftJoinAndSelect('resource.project', 'project')
-      .leftJoinAndSelect('resource.phase', 'phase')
-      .where(scopeCondition, { scopeId })
-      .andWhere('resource.is_published = :isPublished', { isPublished: true });
-    if (category) query.andWhere('resource.category = :category', { category });
-    return query.orderBy('resource.updated_at', 'DESC').skip(skip).take(20);
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.project', 'project')
+      .leftJoinAndSelect('r.phase', 'phase')
+      .where(scopeCondition, { scopeId });
+    if (category) query.andWhere('r.category = :category', { category });
+    return query.orderBy('r.updated_at', 'DESC').skip(skip).take(20);
   }
 }

@@ -11,7 +11,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Rbac } from '@musanzi/nestjs-session-auth';
+import { Public, Rbac } from '@musanzi/nestjs-session-auth';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { FilterResourcesDto } from './dto/filter-resources.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
@@ -36,6 +36,7 @@ export class ResourcesController {
   }
 
   @Get('phase/:phaseId')
+  @Public()
   findByPhase(@Param('phaseId') phaseId: string, @Query() query: FilterResourcesDto): Promise<[Resource[], number]> {
     return this.resourcesService.findByPhase(phaseId, query);
   }
