@@ -12,9 +12,12 @@ import { MoveParticipantsDto } from '../dto/move-participants.dto';
 import { PhasesService } from '../phases/services/phases.service';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
 import { FilterParticipationsDto } from '../dto/filter-participations.dto';
+import { ProjectParticipationStatus } from '../types/project-participation-status.enum';
 
 @Injectable()
 export class ProjectParticipationService {
+  private readonly PAGINATION_LIMIT = 20;
+
   constructor(
     @InjectRepository(ProjectParticipation)
     private readonly participationRepository: Repository<ProjectParticipation>,
@@ -30,10 +33,10 @@ export class ProjectParticipationService {
     try {
       return await this.participationRepository.find({
         where: { user: { id: userId } },
-        relations: ['project', 'project.phases', 'phases', 'venture']
+        relations: ['project', 'project.phases', 'phases', 'venture', 'reviewed_by']
       });
     } catch {
-      throw new BadRequestException('Participations introuvables');
+      throw new BadRequestException("Impossible de récupérer les participations de l'utilisateur");
     }
   }
 
@@ -44,14 +47,21 @@ export class ProjectParticipationService {
         where: { id: In(dto.ids) },
         relations: ['phases']
       });
-      for (const participation of participations) {
+
+      const toUpdate = participations.filter((participation) => {
         const alreadyInPhase = participation.phases?.some((entry) => entry.id === phase.id);
-        if (alreadyInPhase) continue;
-        participation.phases = [...(participation.phases ?? []), phase];
-        await this.participationRepository.save(participation);
+        if (!alreadyInPhase) {
+          participation.phases = [...(participation.phases ?? []), phase];
+          return true;
+        }
+        return false;
+      });
+
+      if (toUpdate.length > 0) {
+        await this.participationRepository.save(toUpdate);
       }
     } catch {
-      throw new BadRequestException('Déplacement impossible');
+      throw new BadRequestException('Impossible de déplacer les participants vers la phase');
     }
   }
 
@@ -61,12 +71,14 @@ export class ProjectParticipationService {
         where: { id: In(dto.ids) },
         relations: ['phases']
       });
-      for (const participation of participations) {
+
+      participations.forEach((participation) => {
         participation.phases = (participation.phases ?? []).filter((phase) => phase.id !== dto.phaseId);
-        await this.participationRepository.save(participation);
-      }
+      });
+
+      await this.participationRepository.save(participations);
     } catch {
-      throw new BadRequestException('Retrait impossible');
+      throw new BadRequestException('Impossible de retirer les participants de la phase');
     }
   }
 
@@ -75,22 +87,24 @@ export class ProjectParticipationService {
     queryParams: FilterParticipationsDto
   ): Promise<[ProjectParticipation[], number]> {
     try {
-      const { page = 1, q, phaseId } = queryParams;
-      const skip = (+page - 1) * 20;
+      const { page = 1, q, phaseId, status } = queryParams;
+      const skip = (+page - 1) * this.PAGINATION_LIMIT;
       const query = this.participationRepository
         .createQueryBuilder('pp')
         .leftJoinAndSelect('pp.user', 'user')
         .leftJoinAndSelect('pp.venture', 'venture')
         .leftJoinAndSelect('pp.project', 'project')
         .leftJoinAndSelect('pp.phases', 'phases')
+        .leftJoinAndSelect('pp.reviewed_by', 'reviewed_by')
         .loadRelationCountAndMap('pp.upvotesCount', 'pp.upvotes')
         .where('pp.projectId = :projectId', { projectId })
         .orderBy('pp.created_at', 'DESC');
       if (q) query.andWhere('user.name LIKE :q OR user.email LIKE :q', { q: `%${q}%` });
       if (phaseId) query.andWhere('phases.id = :phaseId', { phaseId });
-      return await query.skip(skip).take(20).getManyAndCount();
+      if (status) query.andWhere('pp.status = :status', { status });
+      return await query.skip(skip).take(this.PAGINATION_LIMIT).getManyAndCount();
     } catch {
-      throw new BadRequestException('Participations introuvables');
+      throw new BadRequestException('Impossible de récupérer les participations du projet');
     }
   }
 
@@ -103,7 +117,7 @@ export class ProjectParticipationService {
       });
       return this.mapUniqueUsers(participations);
     } catch {
-      throw new BadRequestException('Participants introuvables');
+      throw new BadRequestException('Impossible de récupérer les participants du projet');
     }
   }
 
@@ -115,7 +129,7 @@ export class ProjectParticipationService {
       });
       return this.mapUniqueUsers(participations);
     } catch {
-      throw new BadRequestException('Participants introuvables');
+      throw new BadRequestException('Impossible de récupérer les participants de la phase');
     }
   }
 
@@ -129,6 +143,7 @@ export class ProjectParticipationService {
         .leftJoinAndSelect('project.categories', 'categories')
         .leftJoinAndSelect('project.phases', 'project_phases')
         .leftJoinAndSelect('pp.phases', 'phases')
+        .leftJoinAndSelect('pp.reviewed_by', 'reviewed_by')
         .loadRelationCountAndMap('pp.upvotesCount', 'pp.upvotes')
         .where('pp.id = :participationId', { participationId })
         .getOneOrFail();
@@ -142,25 +157,29 @@ export class ProjectParticipationService {
       const project = await this.projectsService.findOneWithParticipations(projectId);
       const rows = await parseUsersCsv(file.buffer);
       const existingUserIds = new Set<string>(
-        project.participations?.map((participation) => participation?.user?.id) ?? []
+        project.participations?.map((participation) => participation?.user?.id).filter(Boolean) ?? []
       );
       const newUserIds = new Set<string>();
+
       for (const row of rows) {
         const user = await this.usersService.findOrCreate(row);
-        if (!existingUserIds.has(user?.id)) {
-          newUserIds.add(user?.id);
+        if (user?.id && !existingUserIds.has(user.id)) {
+          newUserIds.add(user.id);
         }
       }
+
       if (newUserIds.size === 0) return;
+
       await this.participationRepository.save(
         [...newUserIds].map((userId) => ({
           created_at: project.started_at,
+          status: ProjectParticipationStatus.PENDING,
           user: { id: userId },
           project: { id: projectId }
         }))
       );
     } catch {
-      throw new BadRequestException('Import des participants impossible');
+      throw new BadRequestException("Impossible d'importer les participants");
     }
   }
 
@@ -168,9 +187,10 @@ export class ProjectParticipationService {
     const seen = new Set<string>();
     return participations
       .map((participation) => participation?.user)
-      .filter((participant) => {
-        if (seen.has(participant?.id)) return false;
-        seen.add(participant?.id);
+      .filter((user) => !!user)
+      .filter((user) => {
+        if (seen.has(user.id)) return false;
+        seen.add(user.id);
         return true;
       });
   }
@@ -180,12 +200,13 @@ export class ProjectParticipationService {
       await this.projectsService.findOne(projectId);
       const venture = await this.venturesService.findOne(dto.ventureId);
       await this.participationRepository.save({
+        status: ProjectParticipationStatus.PENDING,
         user: { id: user.id },
         project: { id: projectId },
         venture: venture ? { id: venture.id } : null
       });
     } catch {
-      throw new BadRequestException('Participation impossible');
+      throw new BadRequestException('Impossible de participer au projet');
     }
   }
 
@@ -196,7 +217,7 @@ export class ProjectParticipationService {
         user: { id: userId }
       });
     } catch {
-      throw new BadRequestException('Vote impossible');
+      throw new BadRequestException('Impossible de voter pour cette participation');
     }
   }
 
@@ -207,7 +228,7 @@ export class ProjectParticipationService {
       });
       await this.upvoteRepository.remove(upvote);
     } catch {
-      throw new BadRequestException('Retrait du vote impossible');
+      throw new BadRequestException('Impossible de retirer le vote');
     }
   }
 }

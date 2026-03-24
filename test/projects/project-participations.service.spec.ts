@@ -1,12 +1,13 @@
 import { BadRequestException } from '@nestjs/common';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
 import { ProjectParticipationService } from '@/modules/projects/services/project-participations.service';
+import { ProjectParticipationStatus } from '@/modules/projects/types/project-participation-status.enum';
 
 jest.mock('@/core/helpers/user-csv.helper', () => ({
   parseUsersCsv: jest.fn()
 }));
 
-const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
+const makeQueryBuilder = (result: [any[], number] = [[], 0], entity: any = { id: 'pp1' }) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
   loadRelationCountAndMap: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
@@ -15,16 +16,25 @@ const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
   distinct: jest.fn().mockReturnThis(),
   skip: jest.fn().mockReturnThis(),
   take: jest.fn().mockReturnThis(),
-  getManyAndCount: jest.fn().mockResolvedValue(result)
+  getManyAndCount: jest.fn().mockResolvedValue(result),
+  getOneOrFail: jest.fn().mockResolvedValue(entity)
 });
 
 describe('ProjectParticipationService', () => {
   const setup = () => {
-    const queryBuilder = makeQueryBuilder([[{ id: 'pp1' }], 1]);
+    const queryBuilder = makeQueryBuilder([[{ id: 'pp1' }], 1], {
+      id: 'pp1',
+      status: ProjectParticipationStatus.QUALIFIED,
+      review_message: 'Documents recus',
+      user: { id: 'participant-1', email: 'participant@example.com', name: 'Participant' },
+      project: { id: 'project-1', name: 'Project 1' },
+      phases: [{ id: 'phase-1' }, { id: 'phase-2' }]
+    });
     const participationRepository = {
       find: jest.fn(),
       save: jest.fn(),
       findOne: jest.fn(),
+      findOneOrFail: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder)
     } as any;
     const upvoteRepository = {
@@ -84,7 +94,7 @@ describe('ProjectParticipationService', () => {
     await expect(service.moveParticipants({ ids: ['pp1', 'pp2'], phaseId: 'phase-1' } as any)).resolves.toBeUndefined();
     expect(participationRepository.save).toHaveBeenCalledTimes(1);
     expect(participationRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'pp1', phases: [{ id: 'phase-1' }] })
+      [expect.objectContaining({ id: 'pp1', phases: [{ id: 'phase-1' }] })]
     );
   });
 
@@ -96,7 +106,7 @@ describe('ProjectParticipationService', () => {
     await expect(
       service.removeParticipantsFromPhase({ ids: ['pp1'], phaseId: 'phase-1' } as any)
     ).resolves.toBeUndefined();
-    expect(participationRepository.save).toHaveBeenCalledWith(expect.objectContaining({ phases: [{ id: 'phase-2' }] }));
+    expect(participationRepository.save).toHaveBeenCalledWith([expect.objectContaining({ phases: [{ id: 'phase-2' }] })]);
   });
 
   it('finds participations by project', async () => {
@@ -145,6 +155,16 @@ describe('ProjectParticipationService', () => {
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('phases.id = :phaseId', { phaseId: 'phase-1' });
   });
 
+  it('applies status filter when status is provided', async () => {
+    const { service, queryBuilder } = setup();
+    await expect(
+      service.findParticipations('project-1', { status: ProjectParticipationStatus.PENDING } as any)
+    ).resolves.toEqual([[{ id: 'pp1' }], 1]);
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith('pp.status = :status', {
+      status: ProjectParticipationStatus.PENDING
+    });
+  });
+
   it('does not apply phase filter when phaseId is an empty string', async () => {
     const { service, queryBuilder } = setup();
     await expect(service.findParticipations('project-1', { phaseId: '' } as any)).resolves.toEqual([[{ id: 'pp1' }], 1]);
@@ -189,6 +209,7 @@ describe('ProjectParticipationService', () => {
     ).resolves.toBeUndefined();
     expect(participationRepository.save).toHaveBeenCalledWith([
       expect.objectContaining({
+        status: ProjectParticipationStatus.PENDING,
         user: { id: 'u-new' },
         project: { id: 'project-1' }
       })
@@ -222,6 +243,7 @@ describe('ProjectParticipationService', () => {
     ).resolves.toBeUndefined();
     expect(participationRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
+        status: ProjectParticipationStatus.PENDING,
         user: { id: 'u1' },
         project: { id: 'project-1' },
         venture: { id: 'venture-1' }
