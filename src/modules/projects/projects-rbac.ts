@@ -6,7 +6,7 @@ export const PROJECTS_RBAC_POLICY: ModuleRbacPolicy = {
   grants: [
     {
       roles: [Role.STAFF],
-      actions: ['read', 'create', 'update', 'delete'],
+      actions: ['manage'],
       resources: ['projects', 'projectCategories', 'phases', 'indicators']
     }
   ]
