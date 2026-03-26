@@ -76,6 +76,35 @@ describe('ProjectParticipationService', () => {
     await expect(service.findUserParticipations('u1')).resolves.toEqual([{ id: 'pp1' }]);
   });
 
+  it('finds one participation for review', async () => {
+    const { service, participationRepository } = setup();
+    participationRepository.findOneOrFail.mockResolvedValue({ id: 'pp1' });
+
+    await expect(service.findOneForReview('pp1')).resolves.toEqual({ id: 'pp1' });
+    expect(participationRepository.findOneOrFail).toHaveBeenCalledWith({
+      where: { id: 'pp1' },
+      relations: [
+        'user',
+        'project',
+        'project.project_manager',
+        'project.phases',
+        'project.phases.mentors',
+        'project.phases.mentors.owner',
+        'phases',
+        'phases.mentors',
+        'phases.mentors.owner'
+      ]
+    });
+  });
+
+  it('ensures a participation exists', async () => {
+    const { service, participationRepository } = setup();
+    participationRepository.findOneOrFail.mockResolvedValue({ id: 'pp1' });
+
+    await expect(service.ensureExists('pp1')).resolves.toBeUndefined();
+    expect(participationRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: 'pp1' } });
+  });
+
   it('throws on findUserParticipations failure', async () => {
     const { service, participationRepository } = setup();
     participationRepository.find.mockRejectedValue(new Error('bad'));
@@ -93,9 +122,9 @@ describe('ProjectParticipationService', () => {
 
     await expect(service.moveParticipants({ ids: ['pp1', 'pp2'], phaseId: 'phase-1' } as any)).resolves.toBeUndefined();
     expect(participationRepository.save).toHaveBeenCalledTimes(1);
-    expect(participationRepository.save).toHaveBeenCalledWith(
-      [expect.objectContaining({ id: 'pp1', phases: [{ id: 'phase-1' }] })]
-    );
+    expect(participationRepository.save).toHaveBeenCalledWith([
+      expect.objectContaining({ id: 'pp1', phases: [{ id: 'phase-1' }] })
+    ]);
   });
 
   it('removes participants from a phase', async () => {
@@ -106,7 +135,9 @@ describe('ProjectParticipationService', () => {
     await expect(
       service.removeParticipantsFromPhase({ ids: ['pp1'], phaseId: 'phase-1' } as any)
     ).resolves.toBeUndefined();
-    expect(participationRepository.save).toHaveBeenCalledWith([expect.objectContaining({ phases: [{ id: 'phase-2' }] })]);
+    expect(participationRepository.save).toHaveBeenCalledWith([
+      expect.objectContaining({ phases: [{ id: 'phase-2' }] })
+    ]);
   });
 
   it('finds participations by project', async () => {
@@ -167,7 +198,10 @@ describe('ProjectParticipationService', () => {
 
   it('does not apply phase filter when phaseId is an empty string', async () => {
     const { service, queryBuilder } = setup();
-    await expect(service.findParticipations('project-1', { phaseId: '' } as any)).resolves.toEqual([[{ id: 'pp1' }], 1]);
+    await expect(service.findParticipations('project-1', { phaseId: '' } as any)).resolves.toEqual([
+      [{ id: 'pp1' }],
+      1
+    ]);
     expect(queryBuilder.andWhere).not.toHaveBeenCalledWith('phases.id = :phaseId', expect.anything());
   });
 

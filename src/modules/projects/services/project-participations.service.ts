@@ -47,7 +47,6 @@ export class ProjectParticipationService {
         where: { id: In(dto.ids) },
         relations: ['phases']
       });
-
       const toUpdate = participations.filter((participation) => {
         const alreadyInPhase = participation.phases?.some((entry) => entry.id === phase.id);
         if (!alreadyInPhase) {
@@ -56,7 +55,6 @@ export class ProjectParticipationService {
         }
         return false;
       });
-
       if (toUpdate.length > 0) {
         await this.participationRepository.save(toUpdate);
       }
@@ -71,11 +69,9 @@ export class ProjectParticipationService {
         where: { id: In(dto.ids) },
         relations: ['phases']
       });
-
       participations.forEach((participation) => {
         participation.phases = (participation.phases ?? []).filter((phase) => phase.id !== dto.phaseId);
       });
-
       await this.participationRepository.save(participations);
     } catch {
       throw new BadRequestException('Impossible de retirer les participants de la phase');
@@ -87,7 +83,7 @@ export class ProjectParticipationService {
     queryParams: FilterParticipationsDto
   ): Promise<[ProjectParticipation[], number]> {
     try {
-      const { page = 1, q, phaseId, status } = queryParams;
+      const { page = 1, phaseId, status } = queryParams;
       const skip = (+page - 1) * this.PAGINATION_LIMIT;
       const query = this.participationRepository
         .createQueryBuilder('pp')
@@ -95,11 +91,9 @@ export class ProjectParticipationService {
         .leftJoinAndSelect('pp.venture', 'venture')
         .leftJoinAndSelect('pp.project', 'project')
         .leftJoinAndSelect('pp.phases', 'phases')
-        .leftJoinAndSelect('pp.reviewed_by', 'reviewed_by')
         .loadRelationCountAndMap('pp.upvotesCount', 'pp.upvotes')
         .where('pp.projectId = :projectId', { projectId })
         .orderBy('pp.created_at', 'DESC');
-      if (q) query.andWhere('user.name LIKE :q OR user.email LIKE :q', { q: `%${q}%` });
       if (phaseId) query.andWhere('phases.id = :phaseId', { phaseId });
       if (status) query.andWhere('pp.status = :status', { status });
       return await query.skip(skip).take(this.PAGINATION_LIMIT).getManyAndCount();
@@ -147,6 +141,35 @@ export class ProjectParticipationService {
         .loadRelationCountAndMap('pp.upvotesCount', 'pp.upvotes')
         .where('pp.id = :participationId', { participationId })
         .getOneOrFail();
+    } catch {
+      throw new NotFoundException('Participation introuvable');
+    }
+  }
+
+  async findOneForReview(participationId: string): Promise<ProjectParticipation> {
+    try {
+      return await this.participationRepository.findOneOrFail({
+        where: { id: participationId },
+        relations: [
+          'user',
+          'project',
+          'project.project_manager',
+          'project.phases',
+          'project.phases.mentors',
+          'project.phases.mentors.owner',
+          'phases',
+          'phases.mentors',
+          'phases.mentors.owner'
+        ]
+      });
+    } catch {
+      throw new NotFoundException('Participation introuvable');
+    }
+  }
+
+  async ensureExists(participationId: string): Promise<void> {
+    try {
+      await this.participationRepository.findOneOrFail({ where: { id: participationId } });
     } catch {
       throw new NotFoundException('Participation introuvable');
     }

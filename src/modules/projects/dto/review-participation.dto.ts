@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { ProjectParticipationStatus } from '../types/project-participation-status.enum';
 
 export class ReviewParticipationDto {
@@ -7,5 +7,9 @@ export class ReviewParticipationDto {
 
   @IsOptional()
   @IsString()
-  review_message?: string;
+  note?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  move_to_next_phase?: boolean;
 }

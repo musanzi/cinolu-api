@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ProjectMediaController } from './controllers/project-media.controller';
 import { ProjectNotificationsController } from './controllers/project-notifications.controller';
 import { ProjectParticipationsController } from './controllers/project-participations.controller';
-import { ParticipationReviewsController } from './controllers/participation-reviews.controller';
 import { ProjectsController } from './controllers/projects.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationsModule } from '@/modules/notifications/notifications.module';
@@ -15,7 +14,6 @@ import { ProjectCategoriesModule } from './categories/categories.module';
 import { PhasesModule } from './phases/phases.module';
 import { ProjectMediaService } from './services/project-media.service';
 import { ProjectParticipationService } from './services/project-participations.service';
-import { ParticipationReviewsService } from './services/participation-reviews.service';
 import { ProjectNotificationService } from './services/project-notifications.service';
 import { ProjectsEmailService } from './services/projects-email.service';
 import { ProjectsService } from './services/projects.service';
@@ -40,7 +38,6 @@ import { SessionAuthModule } from '@musanzi/nestjs-session-auth';
   providers: [
     ProjectsService,
     ProjectParticipationService,
-    ParticipationReviewsService,
     ProjectNotificationService,
     ProjectMediaService,
     ProjectsEmailService,
@@ -49,7 +46,6 @@ import { SessionAuthModule } from '@musanzi/nestjs-session-auth';
   controllers: [
     ProjectsController,
     ProjectParticipationsController,
-    ParticipationReviewsController,
     ProjectNotificationsController,
     ProjectMediaController
   ],
