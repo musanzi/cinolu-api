@@ -151,6 +151,7 @@ export class ProjectParticipationService {
         .leftJoinAndSelect('project.phases', 'project_phases')
         .leftJoinAndSelect('pp.phases', 'phases')
         .leftJoinAndSelect('pp.reviews', 'reviews')
+        .leftJoinAndSelect('reviews.reviewer', 'reviewer')
         .leftJoinAndSelect('reviews.phase', 'review_phase')
         .loadRelationCountAndMap('pp.upvotesCount', 'pp.upvotes')
         .where('pp.id = :participationId', { participationId })
