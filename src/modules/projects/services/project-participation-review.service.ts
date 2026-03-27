@@ -9,6 +9,7 @@ import { PhasesService } from '../phases/services/phases.service';
 import { ProjectParticipationService } from './project-participations.service';
 import { ParticipationReviewDto } from '../dto/participation-review.dto';
 import { Phase } from '../phases/entities/phase.entity';
+import { UpdateParticipationReviewDto } from '../dto/update-participation-review.dto';
 
 @Injectable()
 export class ProjectParticipationReviewService {
@@ -34,7 +35,7 @@ export class ProjectParticipationReviewService {
     }
   }
 
-  async review(
+  async createReview(
     participationId: string,
     reviewer: User,
     dto: ParticipationReviewDto
@@ -49,16 +50,46 @@ export class ProjectParticipationReviewService {
           phase: { id: dto.phaseId }
         }
       });
+      if (existing) {
+        throw new BadRequestException('Avis déjà enregistré');
+      }
       const nextPhase = this.findNextPhase(participation.project?.phases ?? [], dto.phaseId, false);
       const review = await this.reviewRepository.save({
-        id: existing?.id,
         participation: { id: participationId },
         phase: { id: dto.phaseId },
         reviewer: { id: reviewer.id },
         message: dto.message ?? null,
         score: dto.score
       });
-      await this.promoteToNextPhaseIfEligible(participation, dto.score, nextPhase);
+      await this.updateParticipationPhases(participation, dto.score, false, nextPhase);
+      await this.notifyParticipantIfNeeded(participation, phase, dto, nextPhase);
+      return review;
+    } catch {
+      throw new BadRequestException('Score impossible à enregistrer');
+    }
+  }
+
+  async updateReview(
+    participationId: string,
+    reviewId: string,
+    reviewer: User,
+    dto: UpdateParticipationReviewDto
+  ): Promise<ProjectParticipationReview> {
+    try {
+      const participation = await this.participationService.findOne(participationId);
+      const existing = await this.findReview(reviewId, participationId);
+      const phase = await this.phasesService.findOne(existing.phase.id);
+      this.ensureParticipationInPhase(participation, existing.phase.id);
+      const nextPhase = this.findNextPhase(participation.project?.phases ?? [], existing.phase.id, false);
+      const review = await this.reviewRepository.save({
+        id: existing.id,
+        participation: { id: participationId },
+        phase: { id: existing.phase.id },
+        reviewer: { id: reviewer.id },
+        message: dto.message ?? null,
+        score: dto.score
+      });
+      await this.updateParticipationPhases(participation, dto.score, true, nextPhase);
       await this.notifyParticipantIfNeeded(participation, phase, dto, nextPhase);
       return review;
     } catch {
@@ -73,18 +104,43 @@ export class ProjectParticipationReviewService {
     }
   }
 
-  private async promoteToNextPhaseIfEligible(
+  private async findReview(reviewId: string, participationId: string): Promise<ProjectParticipationReview> {
+    try {
+      return await this.reviewRepository.findOneOrFail({
+        where: { id: reviewId, participation: { id: participationId } },
+        relations: ['phase']
+      });
+    } catch {
+      throw new BadRequestException('Avis introuvable');
+    }
+  }
+
+  private async updateParticipationPhases(
     participation: ProjectParticipation,
     score: number,
+    hasExistingReview: boolean,
     nextPhase: Phase | null
   ): Promise<void> {
+    const currentPhases = participation.phases ?? [];
+
+    if (hasExistingReview && score < this.PROMOTION_SCORE) {
+      if (!nextPhase) return;
+      const updatedPhases = currentPhases.filter((phase) => phase.id !== nextPhase.id);
+      if (updatedPhases.length === currentPhases.length) return;
+      const updatedParticipation: ProjectParticipation = {
+        ...participation,
+        phases: updatedPhases
+      };
+      await this.participationService.saveMany([updatedParticipation]);
+      return;
+    }
     if (score < this.PROMOTION_SCORE) return;
     if (!nextPhase) return;
-    const currentPhases = participation.phases ?? [];
     const alreadyInNext = currentPhases.some((phase) => phase.id === nextPhase.id);
+    if (alreadyInNext) return;
     const updatedParticipation: ProjectParticipation = {
       ...participation,
-      phases: alreadyInNext ? currentPhases : [...currentPhases, nextPhase]
+      phases: [...currentPhases, nextPhase]
     };
     await this.participationService.saveMany([updatedParticipation]);
   }
@@ -106,7 +162,7 @@ export class ProjectParticipationReviewService {
   private async notifyParticipantIfNeeded(
     participation: ProjectParticipation,
     phase: Phase,
-    dto: ParticipationReviewDto,
+    dto: ParticipationReviewDto | UpdateParticipationReviewDto,
     nextPhase: Phase | null
   ): Promise<void> {
     if (!dto.notifyParticipant) return;
