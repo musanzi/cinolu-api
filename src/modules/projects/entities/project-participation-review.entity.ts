@@ -1,5 +1,6 @@
 import { AbstractEntity } from '@/core/helpers/abstract.entity';
 import { Phase } from '@/modules/projects/phases/entities/phase.entity';
+import { User } from '@/modules/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { ProjectParticipation } from './project-participation.entity';
 
@@ -13,6 +14,10 @@ export class ProjectParticipationReview extends AbstractEntity {
   @ManyToOne(() => Phase, (phase) => phase.reviews, { onDelete: 'CASCADE' })
   @JoinColumn()
   phase: Phase;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  reviewer: User;
 
   @Column({ type: 'text', nullable: true })
   message: string | null;

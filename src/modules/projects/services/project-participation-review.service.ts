@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { User } from '@/modules/users/entities/user.entity';
 import { ProjectParticipationReview } from '../entities/project-participation-review.entity';
 import { ProjectParticipation } from '../entities/project-participation.entity';
 import { PhasesService } from '../phases/services/phases.service';
@@ -16,12 +17,28 @@ export class ProjectParticipationReviewService {
   constructor(
     @InjectRepository(ProjectParticipationReview)
     private readonly reviewRepository: Repository<ProjectParticipationReview>,
+    @Inject(forwardRef(() => ProjectParticipationService))
     private readonly participationService: ProjectParticipationService,
     private readonly phasesService: PhasesService,
     private readonly eventEmitter: EventEmitter2
   ) {}
 
-  async review(participationId: string, dto: ParticipationReviewDto): Promise<ProjectParticipationReview> {
+  async removeHistoryForPhase(participationIds: string[], phaseId: string): Promise<void> {
+    try {
+      await this.reviewRepository.delete({
+        participation: { id: In(participationIds) },
+        phase: { id: phaseId }
+      });
+    } catch {
+      throw new BadRequestException("Suppression de l'historique impossible");
+    }
+  }
+
+  async review(
+    participationId: string,
+    reviewer: User,
+    dto: ParticipationReviewDto
+  ): Promise<ProjectParticipationReview> {
     try {
       const participation = await this.participationService.findOne(participationId);
       const phase = await this.phasesService.findOne(dto.phaseId);
@@ -37,6 +54,7 @@ export class ProjectParticipationReviewService {
         id: existing?.id,
         participation: { id: participationId },
         phase: { id: dto.phaseId },
+        reviewer: { id: reviewer.id },
         message: dto.message ?? null,
         score: dto.score
       });

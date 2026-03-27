@@ -30,6 +30,7 @@ describe('ProjectParticipationReviewService', () => {
 
   it('sets a phase score', async () => {
     const { service, reviewRepository, participationService, phasesService, eventEmitter } = setup();
+    const reviewer = { id: 'reviewer-1', name: 'Reviewer' };
     participationService.findOne.mockResolvedValue({
       id: 'pp1',
       phases: [{ id: 'phase-1' }],
@@ -45,11 +46,11 @@ describe('ProjectParticipationReviewService', () => {
     });
     phasesService.findOne.mockResolvedValue({ id: 'phase-1', name: 'Phase 1' });
     reviewRepository.findOne.mockResolvedValue(null);
-    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 80, message: 'Bien joué' });
+    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 80, message: 'Bien joué', reviewer });
     participationService.saveMany.mockResolvedValue(undefined);
 
     await expect(
-      service.review('pp1', {
+      service.review('pp1', reviewer as any, {
         phaseId: 'phase-1',
         score: 80,
         message: 'Bien joué',
@@ -58,12 +59,14 @@ describe('ProjectParticipationReviewService', () => {
     ).resolves.toEqual({
       id: 'r1',
       score: 80,
-      message: 'Bien joué'
+      message: 'Bien joué',
+      reviewer
     });
     expect(reviewRepository.save).toHaveBeenCalledWith({
       id: undefined,
       participation: { id: 'pp1' },
       phase: { id: 'phase-1' },
+      reviewer: { id: 'reviewer-1' },
       message: 'Bien joué',
       score: 80
     });
@@ -87,6 +90,7 @@ describe('ProjectParticipationReviewService', () => {
 
   it('updates an existing phase score', async () => {
     const { service, reviewRepository, participationService, phasesService, eventEmitter } = setup();
+    const reviewer = { id: 'reviewer-2', name: 'Second Reviewer' };
     participationService.findOne.mockResolvedValue({
       id: 'pp1',
       phases: [{ id: 'phase-1' }],
@@ -94,17 +98,19 @@ describe('ProjectParticipationReviewService', () => {
     });
     phasesService.findOne.mockResolvedValue({ id: 'phase-1' });
     reviewRepository.findOne.mockResolvedValue({ id: 'r1' });
-    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 95, message: null });
+    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 95, message: null, reviewer });
 
-    await expect(service.review('pp1', { phaseId: 'phase-1', score: 95 } as any)).resolves.toEqual({
+    await expect(service.review('pp1', reviewer as any, { phaseId: 'phase-1', score: 95 } as any)).resolves.toEqual({
       id: 'r1',
       score: 95,
-      message: null
+      message: null,
+      reviewer
     });
     expect(reviewRepository.save).toHaveBeenCalledWith({
       id: 'r1',
       participation: { id: 'pp1' },
       phase: { id: 'phase-1' },
+      reviewer: { id: 'reviewer-2' },
       message: null,
       score: 95
     });
@@ -121,13 +127,14 @@ describe('ProjectParticipationReviewService', () => {
     });
     phasesService.findOne.mockResolvedValue({ id: 'phase-1' });
 
-    await expect(service.review('pp1', { phaseId: 'phase-1', score: 50 } as any)).rejects.toBeInstanceOf(
+    await expect(service.review('pp1', { id: 'reviewer-1' } as any, { phaseId: 'phase-1', score: 50 } as any)).rejects.toBeInstanceOf(
       BadRequestException
     );
   });
 
   it('does not auto promote when score is below the threshold', async () => {
     const { service, reviewRepository, participationService, phasesService, eventEmitter } = setup();
+    const reviewer = { id: 'reviewer-1', name: 'Reviewer' };
     participationService.findOne.mockResolvedValue({
       id: 'pp1',
       phases: [{ id: 'phase-1' }],
@@ -143,10 +150,10 @@ describe('ProjectParticipationReviewService', () => {
     });
     phasesService.findOne.mockResolvedValue({ id: 'phase-1', name: 'Phase 1' });
     reviewRepository.findOne.mockResolvedValue(null);
-    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 59, message: 'Continue' });
+    reviewRepository.save.mockResolvedValue({ id: 'r1', score: 59, message: 'Continue', reviewer });
 
     await expect(
-      service.review('pp1', {
+      service.review('pp1', reviewer as any, {
         phaseId: 'phase-1',
         score: 59,
         message: 'Continue',
@@ -155,12 +162,14 @@ describe('ProjectParticipationReviewService', () => {
     ).resolves.toEqual({
       id: 'r1',
       score: 59,
-      message: 'Continue'
+      message: 'Continue',
+      reviewer
     });
     expect(reviewRepository.save).toHaveBeenCalledWith({
       id: undefined,
       participation: { id: 'pp1' },
       phase: { id: 'phase-1' },
+      reviewer: { id: 'reviewer-1' },
       message: 'Continue',
       score: 59
     });

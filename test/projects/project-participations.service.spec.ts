@@ -40,8 +40,8 @@ describe('ProjectParticipationService', () => {
       findOneOrFail: jest.fn(),
       remove: jest.fn()
     } as any;
-    const reviewRepository = {
-      delete: jest.fn()
+    const reviewService = {
+      removeHistoryForPhase: jest.fn()
     } as any;
     const usersService = { findOrCreate: jest.fn() } as any;
     const phasesService = { findOne: jest.fn() } as any;
@@ -54,18 +54,18 @@ describe('ProjectParticipationService', () => {
     const service = new ProjectParticipationService(
       participationRepository,
       upvoteRepository,
-      reviewRepository,
       usersService,
       phasesService,
       venturesService,
-      projectsService
+      projectsService,
+      reviewService
     );
     return {
       service,
       queryBuilder,
       participationRepository,
       upvoteRepository,
-      reviewRepository,
+      reviewService,
       usersService,
       phasesService,
       venturesService,
@@ -110,10 +110,10 @@ describe('ProjectParticipationService', () => {
   });
 
   it('removes participants from a phase', async () => {
-    const { service, participationRepository, reviewRepository } = setup();
+    const { service, participationRepository, reviewService } = setup();
     participationRepository.find.mockResolvedValue([{ id: 'pp1', phases: [{ id: 'phase-1' }, { id: 'phase-2' }] }]);
     participationRepository.save.mockResolvedValue(undefined);
-    reviewRepository.delete.mockResolvedValue(undefined);
+    reviewService.removeHistoryForPhase.mockResolvedValue(undefined);
 
     await expect(
       service.removeParticipantsFromPhase({ ids: ['pp1'], phaseId: 'phase-1' } as any)
@@ -121,7 +121,7 @@ describe('ProjectParticipationService', () => {
     expect(participationRepository.save).toHaveBeenCalledWith([
       expect.objectContaining({ phases: [{ id: 'phase-2' }] })
     ]);
-    expect(reviewRepository.delete).toHaveBeenCalledTimes(1);
+    expect(reviewService.removeHistoryForPhase).toHaveBeenCalledWith(['pp1'], 'phase-1');
   });
 
   it('finds participations by project', async () => {

@@ -12,7 +12,7 @@ import { MoveParticipantsDto } from '../dto/move-participants.dto';
 import { PhasesService } from '../phases/services/phases.service';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
 import { FilterParticipationsDto } from '../dto/filter-participations.dto';
-import { ProjectParticipationReview } from '../entities/project-participation-review.entity';
+import { ProjectParticipationReviewService } from './project-participation-review.service';
 
 @Injectable()
 export class ProjectParticipationService {
@@ -23,12 +23,11 @@ export class ProjectParticipationService {
     private readonly participationRepository: Repository<ProjectParticipation>,
     @InjectRepository(ProjectParticipationUpvote)
     private readonly upvoteRepository: Repository<ProjectParticipationUpvote>,
-    @InjectRepository(ProjectParticipationReview)
-    private readonly reviewRepository: Repository<ProjectParticipationReview>,
     private readonly usersService: UsersService,
     private readonly phasesService: PhasesService,
     private readonly venturesService: VenturesService,
-    private readonly projectsService: ProjectsService
+    private readonly projectsService: ProjectsService,
+    private readonly reviewService: ProjectParticipationReviewService
   ) {}
 
   async findUserParticipations(userId: string): Promise<ProjectParticipation[]> {
@@ -75,10 +74,7 @@ export class ProjectParticipationService {
         participation.phases = (participation.phases ?? []).filter((phase) => phase.id !== dto.phaseId);
       });
       await this.participationRepository.save(participations);
-      await this.reviewRepository.delete({
-        participation: { id: In(dto.ids) },
-        phase: { id: dto.phaseId }
-      });
+      await this.reviewService.removeHistoryForPhase(dto.ids, dto.phaseId);
     } catch {
       throw new BadRequestException('Impossible de retirer les participants de la phase');
     }
