@@ -22,8 +22,8 @@ export class StatsService {
 
   async findUserStats(user: User): Promise<IUSerStats> {
     const [totalVentures, referralsCount] = await Promise.all([
-      this.#countUserVentures(user.id),
-      this.#countUserReferrals(user.id)
+      this.countUserVentures(user.id),
+      this.countUserReferrals(user.id)
     ]);
     return { totalVentures, referralsCount };
   }
@@ -40,9 +40,9 @@ export class StatsService {
 
   async findAdminStatsByYear(year: number): Promise<IAdminStatsByYear> {
     const [totalProjectParticipations, totalEventParticipations, detailedParticipations] = await Promise.all([
-      this.#countProjectParticipationsByYear(year),
-      this.#countEventParticipationsByYear(year),
-      this.#buildDetailedParticipations(year)
+      this.countProjectParticipationsByYear(year),
+      this.countEventParticipationsByYear(year),
+      this.buildDetailedParticipations(year)
     ]);
     return {
       year,
@@ -55,7 +55,7 @@ export class StatsService {
     };
   }
 
-  async #buildDetailedParticipations(year: number): Promise<{
+  private async buildDetailedParticipations(year: number): Promise<{
     programs: IProgramParticipations[];
   }> {
     const [programs, projectCounts, eventCounts] = await Promise.all([
@@ -113,7 +113,7 @@ export class StatsService {
     return { programs: programsList };
   }
 
-  async #countProjectParticipationsByYear(year: number): Promise<number> {
+  private async countProjectParticipationsByYear(year: number): Promise<number> {
     return this.dataSource
       .getRepository(ProjectParticipation)
       .createQueryBuilder('pp')
@@ -121,7 +121,7 @@ export class StatsService {
       .getCount();
   }
 
-  async #countEventParticipationsByYear(year: number): Promise<number> {
+  private async countEventParticipationsByYear(year: number): Promise<number> {
     return this.dataSource
       .getRepository(EventParticipation)
       .createQueryBuilder('ep')
@@ -129,13 +129,13 @@ export class StatsService {
       .getCount();
   }
 
-  async #countUserVentures(userId: string): Promise<number> {
+  private async countUserVentures(userId: string): Promise<number> {
     return await this.dataSource.getRepository(Venture).count({
       where: { owner: { id: userId } }
     });
   }
 
-  async #countUserReferrals(userId: string): Promise<number> {
+  private async countUserReferrals(userId: string): Promise<number> {
     return await this.dataSource.getRepository(User).count({
       where: { referred_by: { id: userId } }
     });

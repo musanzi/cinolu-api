@@ -72,7 +72,7 @@ export class AuthService {
     }
   }
 
-  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  private async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword || '');
   }
 
