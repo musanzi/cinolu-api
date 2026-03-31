@@ -11,6 +11,7 @@ import { Event } from '@/modules/events/entities/event.entity';
 import { EventParticipation } from '@/modules/events/entities/event-participation.entity';
 import { MentorProfile } from '@/modules/mentors/entities/mentor.entity';
 import { Notification } from '@/modules/notifications/entities/notification.entity';
+import { UserStatus } from './user-status.enum';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -46,6 +47,13 @@ export class User extends AbstractEntity {
 
   @Column({ nullable: true })
   profile: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.OTHER
+  })
+  status: UserStatus;
 
   @Column({ unique: true, nullable: true })
   referral_code: string;

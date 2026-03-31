@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from '@/modules/users/services/users.service';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
+import { UserStatus } from '@/modules/users/entities/user-status.enum';
 
 jest.mock('@/core/helpers/user-csv.helper', () => ({
   parseUsersCsv: jest.fn()
@@ -67,11 +68,14 @@ describe('UsersService', () => {
   it('creates user with defaults', async () => {
     const { service, userRepository } = setup();
     userRepository.save.mockResolvedValue({ id: 'u1' });
-    await expect(service.create({ email: 'a@a.com', roles: ['r1'] } as any)).resolves.toEqual({ id: 'u1' });
+    await expect(
+      service.create({ email: 'a@a.com', roles: ['r1'], status: UserStatus.ENTREPRENEUR } as any)
+    ).resolves.toEqual({ id: 'u1' });
     expect(userRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         password: 'user1234',
         referral_code: 'ref-code',
+        status: UserStatus.ENTREPRENEUR,
         roles: [{ id: 'r1' }]
       })
     );

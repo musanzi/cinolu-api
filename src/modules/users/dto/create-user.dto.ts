@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsDate, IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsDate, IsEmail, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { UserStatus } from '../entities/user-status.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -36,6 +37,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   google_image?: string;
+
+  @IsOptional()
+  @IsEnum(UserStatus)
+  status?: UserStatus;
 
   @IsOptional()
   @IsArray()
