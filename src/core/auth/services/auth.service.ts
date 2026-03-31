@@ -6,6 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@/modules/users/entities/user.entity';
 import { UsersService } from '@/modules/users/services/users.service';
+import { SignUpResult } from '@/modules/users/types/sign-up-result.type';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { ContactSupportDto } from '../dto/contact-support.dto';
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
@@ -21,10 +22,11 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmailWithPassword(email);
     if (!user) throw new UnauthorizedException('Les identifiants saisis sont invalides');
     const isPasswordValid = await this.verifyPassword(password, user.password);
     if (!isPasswordValid) throw new UnauthorizedException('Les identifiants saisis sont invalides');
+    delete user.password;
     return user;
   }
 
@@ -48,10 +50,11 @@ export class AuthService {
     return req.user as User;
   }
 
-  async signUp(dto: SignUpDto): Promise<User> {
+  async signUp(req: Request, dto: SignUpDto): Promise<User> {
     try {
-      const user = await this.usersService.signUp(dto);
-      this.eventEmitter.emit('user.welcome', user);
+      const { user, isNew }: SignUpResult = await this.usersService.signUp(dto);
+      await this.loginUser(req, user);
+      if (isNew) this.eventEmitter.emit('user.welcome', user);
       return user;
     } catch (error) {
       throw new BadRequestException(error?.message);
@@ -94,5 +97,17 @@ export class AuthService {
     } catch {
       throw new BadRequestException('Envoi du message impossible');
     }
+  }
+
+  private async loginUser(req: Request, user: User): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      req.logIn(user, (error) => {
+        if (error) {
+          reject(new BadRequestException('Connexion impossible'));
+          return;
+        }
+        resolve();
+      });
+    });
   }
 }

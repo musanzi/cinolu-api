@@ -19,8 +19,8 @@ export class AuthController {
 
   @Post('signup')
   @Public()
-  signUp(@Body() dto: SignUpDto): Promise<User> {
-    return this.authService.signUp(dto);
+  signUp(@Req() req: Request, @Body() dto: SignUpDto): Promise<User> {
+    return this.authService.signUp(req, dto);
   }
 
   @Post('signin')

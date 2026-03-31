@@ -8,12 +8,14 @@ jest.mock('@/core/helpers/user-csv.helper', () => ({
 }));
 
 const makeUsersQueryBuilder = () => ({
+  addSelect: jest.fn().mockReturnThis(),
   leftJoinAndSelect: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   loadRelationCountAndMap: jest.fn().mockReturnThis(),
   skip: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   take: jest.fn().mockReturnThis(),
+  getOneOrFail: jest.fn().mockResolvedValue({ id: 'u1', password: 'hashed', roles: [{ name: 'user' }] }),
   getManyAndCount: jest.fn().mockResolvedValue([[{ id: 'u1' }], 1]),
   getMany: jest.fn().mockResolvedValue([{ id: 'u1' }])
 });
@@ -109,21 +111,44 @@ describe('UsersService', () => {
   it('signs up without referral', async () => {
     const { service, rolesService, userRepository, eventEmitter } = setup();
     rolesService.findByName.mockResolvedValue({ id: 'role-user' });
-    userRepository.save.mockResolvedValue({ id: 'u1' });
-    await expect(service.signUp({ email: 'a@a.com' } as any)).resolves.toEqual({ id: 'u1' });
+    userRepository.findOne.mockResolvedValue(null);
+    userRepository.save.mockResolvedValue({ id: 'u1', email: 'a@a.com' });
+    jest.spyOn(service, 'findByEmail').mockResolvedValue({ id: 'u1', email: 'a@a.com' } as any);
+    await expect(service.signUp({ email: 'a@a.com', password: 'secret123' } as any)).resolves.toEqual({
+      user: { id: 'u1', email: 'a@a.com' },
+      isNew: true
+    });
     expect(eventEmitter.emit).not.toHaveBeenCalled();
   });
 
   it('signs up with referral and emits event', async () => {
     const { service, rolesService, userRepository, eventEmitter } = setup();
     rolesService.findByName.mockResolvedValue({ id: 'role-user' });
+    userRepository.findOne.mockResolvedValue(null);
     jest.spyOn(service, 'referredBy').mockResolvedValue({ id: 'u-ref' } as any);
-    userRepository.save.mockResolvedValue({ id: 'u1' });
-    await expect(service.signUp({ email: 'a@a.com', referral_code: 'abc' } as any)).resolves.toEqual({ id: 'u1' });
+    userRepository.save.mockResolvedValue({ id: 'u1', email: 'a@a.com' });
+    jest.spyOn(service, 'findByEmail').mockResolvedValue({ id: 'u1', email: 'a@a.com' } as any);
+    await expect(service.signUp({ email: 'a@a.com', password: 'secret123', referral_code: 'abc' } as any)).resolves.toEqual({
+      user: { id: 'u1', email: 'a@a.com' },
+      isNew: true
+    });
     expect(eventEmitter.emit).toHaveBeenCalledWith(
       'user.referral-signup',
-      expect.objectContaining({ referredBy: { id: 'u-ref' }, newUser: { id: 'u1' } })
+      expect.objectContaining({ referredBy: { id: 'u-ref' }, newUser: expect.objectContaining({ id: 'u1' }) })
     );
+  });
+
+  it('updates password when signup email already exists', async () => {
+    const { service, userRepository, eventEmitter } = setup();
+    userRepository.findOne.mockResolvedValue({ id: 'u1', email: 'a@a.com', roles: [{ id: 'r1' }] });
+    jest.spyOn(service, 'update').mockResolvedValue({ id: 'u1', email: 'a@a.com' } as any);
+
+    await expect(service.signUp({ email: 'a@a.com', password: 'new-secret' } as any)).resolves.toEqual({
+      user: { id: 'u1', email: 'a@a.com' },
+      isNew: false
+    });
+    expect(service.update).toHaveBeenCalledWith('u1', { password: 'new-secret' });
+    expect(eventEmitter.emit).not.toHaveBeenCalled();
   });
 
   it('throws signup-specific error on signUp failure', async () => {
@@ -151,6 +176,17 @@ describe('UsersService', () => {
     await expect(service.findByEmail('a@a.com')).resolves.toEqual(
       expect.objectContaining({ roles: ['user'], referralsCount: 3 })
     );
+  });
+
+  it('finds user by email with password when authentication needs it', async () => {
+    const { service, userRepository, queryBuilder } = setup();
+    userRepository.count.mockResolvedValue(1);
+
+    await expect(service.findByEmailWithPassword('a@a.com')).resolves.toEqual(
+      expect.objectContaining({ password: 'hashed', roles: ['user'], referralsCount: 1 })
+    );
+    expect(queryBuilder.addSelect).toHaveBeenCalledWith('user.password');
+    expect(queryBuilder.where).toHaveBeenCalledWith('user.email = :email', { email: 'a@a.com' });
   });
 
   it('throws not found for missing email', async () => {

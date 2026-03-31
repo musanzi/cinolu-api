@@ -10,6 +10,7 @@ import { SignUpDto } from '@/core/auth/dto/sign-up.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes } from 'crypto';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
+import { SignUpResult } from '../types/sign-up-result.type';
 
 @Injectable()
 export class UsersService {
@@ -120,21 +121,15 @@ export class UsersService {
     }
   }
 
-  async signUp(dto: SignUpDto): Promise<User> {
+  async signUp(dto: SignUpDto): Promise<SignUpResult> {
     try {
-      const role = await this.rolesService.findByName('user');
-      let referredBy: User | null = null;
-      if (dto.referral_code) referredBy = await this.referredBy(dto.referral_code);
-      const newUser = await this.userRepository.save({
-        ...dto,
-        referred_by: referredBy ? { id: referredBy.id } : null,
-        referral_code: this.generateReferralCode(),
-        roles: [{ id: role.id }]
-      });
-      if (referredBy) {
-        this.eventEmitter.emit('user.referral-signup', { referredBy, newUser });
+      const existingUser = await this.findSignUpUser(dto.email);
+      if (existingUser) {
+        const user = await this.update(existingUser.id, { password: dto.password });
+        return { user, isNew: false };
       }
-      return newUser;
+      const user = await this.createSignUpUser(dto);
+      return { user, isNew: true };
     } catch {
       throw new BadRequestException('Cet utilisateur existe déjà');
     }
@@ -146,8 +141,7 @@ export class UsersService {
         where: { id },
         relations: ['roles', 'mentor_profile']
       });
-      const roles = user.roles.map((role) => role.name);
-      return { ...user, roles } as unknown as User;
+      return this.mapUserRoles(user);
     } catch {
       throw new BadRequestException('Utilisateur introuvable');
     }
@@ -162,8 +156,25 @@ export class UsersService {
       user['referralsCount'] = await this.userRepository.count({
         where: { referred_by: { id: user.id } }
       });
-      const roles = user.roles.map((role) => role.name);
-      return { ...user, roles } as unknown as User;
+      return this.mapUserRoles(user);
+    } catch {
+      throw new NotFoundException("Cet utilisateur n'existe pas");
+    }
+  }
+
+  async findByEmailWithPassword(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .leftJoinAndSelect('user.roles', 'roles')
+        .leftJoinAndSelect('user.mentor_profile', 'mentor_profile')
+        .where('user.email = :email', { email })
+        .getOneOrFail();
+      user['referralsCount'] = await this.userRepository.count({
+        where: { referred_by: { id: user.id } }
+      });
+      return this.mapUserRoles(user);
     } catch {
       throw new NotFoundException("Cet utilisateur n'existe pas");
     }
@@ -263,5 +274,38 @@ export class UsersService {
     const normalizedName = name.trim();
     if (normalizedName.length < 2 || normalizedName.includes('@')) return false;
     return /[A-Za-z]/.test(normalizedName);
+  }
+
+  private mapUserRoles(user: User): User {
+    const roles = user.roles.map((role) => role.name);
+    return { ...user, roles } as unknown as User;
+  }
+
+  private async findSignUpUser(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles']
+    });
+  }
+
+  private async createSignUpUser(dto: SignUpDto): Promise<User> {
+    const role = await this.rolesService.findByName('user');
+    const referredBy = await this.findReferredUser(dto.referral_code);
+    const newUser = await this.userRepository.save({
+      email: dto.email,
+      password: dto.password,
+      referred_by: referredBy ? { id: referredBy.id } : null,
+      referral_code: this.generateReferralCode(),
+      roles: [{ id: role.id }]
+    });
+    if (referredBy) {
+      this.eventEmitter.emit('user.referral-signup', { referredBy, newUser });
+    }
+    return await this.findByEmail(newUser.email);
+  }
+
+  private async findReferredUser(referralCode?: string): Promise<User | null> {
+    if (!referralCode) return null;
+    return await this.referredBy(referralCode);
   }
 }
