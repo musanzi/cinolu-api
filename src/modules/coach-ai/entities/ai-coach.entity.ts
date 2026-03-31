@@ -1,6 +1,5 @@
 import { AbstractEntity } from '@/core/helpers/abstract.entity';
-import { Venture } from '@/modules/ventures/entities/venture.entity';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CoachConversation } from './coach-conversation.entity';
 
 @Entity()
@@ -22,10 +21,6 @@ export class AiCoach extends AbstractEntity {
 
   @Column({ default: 'active' })
   status: string;
-
-  @OneToOne(() => Venture, { nullable: false })
-  @JoinColumn()
-  venture: Venture;
 
   @OneToMany(() => CoachConversation, (conversation) => conversation.coach)
   conversations: CoachConversation[];

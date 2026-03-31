@@ -6,10 +6,9 @@ describe('CoachAiService', () => {
     const venturesService = {
       findOne: jest.fn()
     } as any;
-    const coachStoreService = {
-      findByVenture: jest.fn(),
-      findByVentureOrFail: jest.fn(),
-      create: jest.fn()
+    const coachManagementService = {
+      findAllActive: jest.fn(),
+      findByIdOrFail: jest.fn()
     } as any;
     const conversationsService = {
       findByCoachAndVenture: jest.fn(),
@@ -21,86 +20,52 @@ describe('CoachAiService', () => {
       createUserMessage: jest.fn(),
       createCoachMessage: jest.fn()
     } as any;
-    const configService = {
-      buildDefinition: jest.fn()
-    } as any;
-    const diagnosticWorkflow = {
-      run: jest.fn()
-    } as any;
     const conversationWorkflow = {
       run: jest.fn()
     } as any;
 
     const service = new CoachAiService(
       venturesService,
-      coachStoreService,
+      coachManagementService,
       conversationsService,
       messagesService,
-      configService,
-      diagnosticWorkflow,
       conversationWorkflow
     );
 
     return {
       service,
       venturesService,
-      coachStoreService,
+      coachManagementService,
       conversationsService,
       messagesService,
-      configService,
-      diagnosticWorkflow,
       conversationWorkflow
     };
   };
 
-  it('assigns a coach and saves the initial diagnostic', async () => {
-    const { service, coachStoreService, conversationsService, configService, diagnosticWorkflow, messagesService } = setup();
-    coachStoreService.findByVenture.mockResolvedValue(null);
-    configService.buildDefinition.mockReturnValue({
-      name: 'Coach diagnostic AgriNova',
-      profile: 'Coach',
-      role: 'Diagnostic',
-      expectedOutputs: ['DIAGNOSTIC']
-    });
-    coachStoreService.create.mockResolvedValueOnce({ id: 'c1', venture: { id: 'v1' } });
-    conversationsService.findByCoachAndVenture.mockResolvedValue(null);
-    conversationsService.create.mockResolvedValue({ id: 'conv1' });
-    diagnosticWorkflow.run.mockResolvedValue({
-      type: 'DIAGNOSTIC',
-      title: 'Diagnostic',
-      summary: 'Resume',
-      bullets: ['Action'],
-      ventureFocus: 'AgriNova',
-      scopeCheck: { profile: 'Coach', role: 'Diagnostic', grounded: true }
-    });
-    coachStoreService.findByVentureOrFail.mockResolvedValue({ id: 'c1', venture: { id: 'v1' } });
-    messagesService.createCoachMessage.mockResolvedValue(undefined);
+  it('lists coaches for the venture owner', async () => {
+    const { service, venturesService, coachManagementService } = setup();
+    venturesService.findOne.mockResolvedValue({ id: 'v1', owner: { id: 'u1' } });
+    coachManagementService.findAllActive.mockResolvedValue([{ id: 'c1' }, { id: 'c2' }]);
 
-    await expect(service.assignCoachToVenture({ id: 'v1', name: 'AgriNova' } as any)).resolves.toEqual({
-      id: 'c1',
-      venture: { id: 'v1' }
-    });
-    expect(messagesService.createCoachMessage).toHaveBeenCalledWith(
-      'conv1',
-      expect.objectContaining({ type: 'DIAGNOSTIC' })
-    );
+    await expect(service.findCoachesForVenture('v1', { id: 'u1' } as any)).resolves.toEqual([{ id: 'c1' }, { id: 'c2' }]);
   });
 
-  it('returns existing coach without recreating it', async () => {
-    const { service, coachStoreService } = setup();
-    coachStoreService.findByVenture.mockResolvedValue({ id: 'c1' });
+  it('loads the selected coach conversation for the venture owner', async () => {
+    const { service, venturesService, coachManagementService, conversationsService } = setup();
+    venturesService.findOne.mockResolvedValue({ id: 'v1', owner: { id: 'u1' } });
+    coachManagementService.findByIdOrFail.mockResolvedValue({ id: 'c1' });
+    conversationsService.findByCoachAndVentureOrFail.mockResolvedValue({ id: 'conv1' });
 
-    await expect(service.assignCoachToVenture({ id: 'v1' } as any)).resolves.toEqual({ id: 'c1' });
+    await expect(service.findConversation('v1', 'c1', { id: 'u1' } as any)).resolves.toEqual({ id: 'conv1' });
   });
 
-  it('saves user and coach messages during chat', async () => {
-    const { service, venturesService, coachStoreService, conversationsService, messagesService, conversationWorkflow } =
+  it('saves user and coach messages during chat with the selected coach', async () => {
+    const { service, venturesService, coachManagementService, conversationsService, messagesService, conversationWorkflow } =
       setup();
     venturesService.findOne.mockResolvedValue({ id: 'v1', owner: { id: 'u1' }, name: 'AgriNova' });
-    coachStoreService.findByVentureOrFail.mockResolvedValue({
+    coachManagementService.findByIdOrFail.mockResolvedValue({
       id: 'c1',
-      expected_outputs: ['CLARIFICATION'],
-      venture: { id: 'v1' }
+      expected_outputs: ['CLARIFICATION']
     });
     conversationsService.findByCoachAndVenture.mockResolvedValue({ id: 'conv1' });
     messagesService.findByConversation.mockResolvedValue([{ role: 'assistant', content: 'old' }]);
@@ -115,7 +80,7 @@ describe('CoachAiService', () => {
       scopeCheck: { profile: 'Coach', role: 'Diagnostic', grounded: true }
     });
 
-    await expect(service.chat('v1', { id: 'u1' } as any, { message: 'Que faire ?' })).resolves.toEqual(
+    await expect(service.chat('v1', 'c1', { id: 'u1' } as any, { message: 'Que faire ?' })).resolves.toEqual(
       expect.objectContaining({ type: 'CLARIFICATION' })
     );
     expect(messagesService.createUserMessage).toHaveBeenCalledWith('conv1', 'Que faire ?');
@@ -129,16 +94,18 @@ describe('CoachAiService', () => {
     const { service, venturesService } = setup();
     venturesService.findOne.mockResolvedValue({ id: 'v1', owner: { id: 'u2' } });
 
-    await expect(service.chat('v1', { id: 'u1' } as any, { message: 'Que faire ?' })).rejects.toBeInstanceOf(
+    await expect(service.chat('v1', 'c1', { id: 'u1' } as any, { message: 'Que faire ?' })).rejects.toBeInstanceOf(
       BadRequestException
     );
   });
 
-  it('throws when the coach is missing for a venture lookup', async () => {
-    const { service, venturesService, coachStoreService } = setup();
+  it('throws when the selected coach is missing', async () => {
+    const { service, venturesService, coachManagementService } = setup();
     venturesService.findOne.mockResolvedValue({ id: 'v1', owner: { id: 'u1' } });
-    coachStoreService.findByVentureOrFail.mockRejectedValue(new NotFoundException('Coach introuvable'));
+    coachManagementService.findByIdOrFail.mockRejectedValue(new NotFoundException('Coach introuvable'));
 
-    await expect(service.findCoachForVenture('v1', { id: 'u1' } as any)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.findCoachForVenture('v1', 'c1', { id: 'u1' } as any)).rejects.toBeInstanceOf(
+      NotFoundException
+    );
   });
 });

@@ -17,13 +17,9 @@ export class CoachLlmService {
           ]
         })
       });
-      if (!response.ok) {
-        throw new BadRequestException('Appel IA impossible');
-      }
+      if (!response.ok) throw new BadRequestException('Appel IA impossible');
       const payload = (await response.json()) as { message?: { content?: string } };
-      if (!payload?.message?.content) {
-        throw new BadRequestException('Réponse IA vide');
-      }
+      if (!payload?.message?.content) throw new BadRequestException('Réponse IA vide');
       return payload.message.content;
     } catch (error) {
       if (error instanceof BadRequestException) throw error;

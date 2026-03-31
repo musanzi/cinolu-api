@@ -1,54 +1,50 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
 import { User } from '@/modules/users/entities/user.entity';
 import { Venture } from '@/modules/ventures/entities/venture.entity';
 import { VenturesService } from '@/modules/ventures/services/ventures.service';
 import { CreateCoachMessageDto } from '../dto/create-coach-message.dto';
 import { AiCoach } from '../entities/ai-coach.entity';
 import { CoachConversation } from '../entities/coach-conversation.entity';
-import { CoachConfigService } from './coach-config.service';
 import { CoachConversationWorkflowService } from './coach-conversation-workflow.service';
-import { CoachDiagnosticWorkflowService } from './coach-diagnostic-workflow.service';
 import { CoachOutput } from '../types/coach-output.type';
-import { CoachStoreService } from './coach-store.service';
 import { CoachConversationsService } from './coach-conversations.service';
 import { CoachMessagesService } from './coach-messages.service';
+import { CoachManagementService } from './coach-management.service';
 
 @Injectable()
 export class CoachAiService {
   constructor(
     private readonly venturesService: VenturesService,
-    private readonly coachStoreService: CoachStoreService,
+    private readonly coachManagementService: CoachManagementService,
     private readonly conversationsService: CoachConversationsService,
     private readonly messagesService: CoachMessagesService,
-    private readonly configService: CoachConfigService,
-    private readonly diagnosticWorkflow: CoachDiagnosticWorkflowService,
     private readonly conversationWorkflow: CoachConversationWorkflowService
   ) {}
 
-  @OnEvent('venture.created')
-  async handleVentureCreated(venture: Venture): Promise<void> {
+  async findCoachesForVenture(ventureId: string, user: User): Promise<AiCoach[]> {
     try {
-      await this.assignCoachToVenture(venture);
-    } catch {
-      throw new BadRequestException('Création du coach impossible');
+      await this.ensureOwner(ventureId, user.id);
+      return await this.coachManagementService.findAllActive();
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+      throw new NotFoundException('Coachs introuvables');
     }
   }
 
-  async findCoachForVenture(ventureId: string, user: User): Promise<AiCoach> {
+  async findCoachForVenture(ventureId: string, coachId: string, user: User): Promise<AiCoach> {
     try {
-      const venture = await this.ensureOwner(ventureId, user.id);
-      return await this.findCoachEntity(venture.id);
+      await this.ensureOwner(ventureId, user.id);
+      return await this.findCoachEntity(coachId);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
       throw new NotFoundException('Coach introuvable');
     }
   }
 
-  async findConversation(ventureId: string, user: User): Promise<CoachConversation> {
+  async findConversation(ventureId: string, coachId: string, user: User): Promise<CoachConversation> {
     try {
       const venture = await this.ensureOwner(ventureId, user.id);
-      const coach = await this.findCoachEntity(venture.id);
+      const coach = await this.findCoachEntity(coachId);
       return await this.findConversationEntity(coach.id, venture.id);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
@@ -56,10 +52,10 @@ export class CoachAiService {
     }
   }
 
-  async chat(ventureId: string, user: User, dto: CreateCoachMessageDto): Promise<CoachOutput> {
+  async chat(ventureId: string, coachId: string, user: User, dto: CreateCoachMessageDto): Promise<CoachOutput> {
     try {
       const venture = await this.ensureOwner(ventureId, user.id);
-      const coach = await this.findOrAssignCoach(venture);
+      const coach = await this.findCoachEntity(coachId);
       const conversation = await this.findOrCreateConversation(coach, venture);
       const history = await this.messagesService.findByConversation(conversation.id);
       await this.messagesService.createUserMessage(conversation.id, dto.message);
@@ -69,28 +65,6 @@ export class CoachAiService {
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
       throw new BadRequestException('Message impossible');
-    }
-  }
-
-  async assignCoachToVenture(venture: Venture): Promise<AiCoach> {
-    try {
-      const existingCoach = await this.coachStoreService.findByVenture(venture.id);
-      if (existingCoach) return existingCoach;
-      const definition = this.configService.buildDefinition(venture);
-      const coach = await this.coachStoreService.create({
-        name: definition.name,
-        profile: definition.profile,
-        role: definition.role,
-        expectedOutputs: definition.expectedOutputs,
-        ventureId: venture.id
-      });
-      const conversation = await this.findOrCreateConversation(coach, venture);
-      const output = await this.diagnosticWorkflow.run(coach, venture);
-      await this.messagesService.createCoachMessage(conversation.id, output);
-      return await this.coachStoreService.findByVentureOrFail(venture.id);
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException('Attribution du coach impossible');
     }
   }
 
@@ -107,16 +81,8 @@ export class CoachAiService {
     }
   }
 
-  private async findOrAssignCoach(venture: Venture): Promise<AiCoach> {
-    try {
-      return await this.findCoachEntity(venture.id);
-    } catch {
-      return await this.assignCoachToVenture(venture);
-    }
-  }
-
-  private async findCoachEntity(ventureId: string): Promise<AiCoach> {
-    return await this.coachStoreService.findByVentureOrFail(ventureId);
+  private async findCoachEntity(coachId: string): Promise<AiCoach> {
+    return await this.coachManagementService.findByIdOrFail(coachId);
   }
 
   private async findConversationEntity(coachId: string, ventureId: string): Promise<CoachConversation> {
