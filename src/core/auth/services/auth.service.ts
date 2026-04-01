@@ -102,10 +102,7 @@ export class AuthService {
   private async loginUser(req: Request, user: User): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       req.logIn(user, (error) => {
-        if (error) {
-          reject(new BadRequestException('Connexion impossible'));
-          return;
-        }
+        if (error) reject(new BadRequestException('Connexion impossible'));
         resolve();
       });
     });
