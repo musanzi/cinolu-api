@@ -1,11 +1,11 @@
-import { StatsService } from '@/modules/stats/services/stats.service';
-import { EventParticipation } from '@/modules/events/entities/event-participation.entity';
-import { Event } from '@/modules/events/entities/event.entity';
-import { Program } from '@/modules/programs/entities/program.entity';
-import { ProjectParticipation } from '@/modules/projects/entities/project-participation.entity';
-import { Project } from '@/modules/projects/entities/project.entity';
-import { User } from '@/modules/users/entities/user.entity';
-import { Venture } from '@/modules/ventures/entities/venture.entity';
+import { StatsService } from '@/features/stats/services/stats.service';
+import { EventParticipation } from '@/features/events/entities/event-participation.entity';
+import { Event } from '@/features/events/entities/event.entity';
+import { Program } from '@/features/programs/entities/program.entity';
+import { ProjectParticipation } from '@/features/projects/entities/project-participation.entity';
+import { Project } from '@/features/projects/entities/project.entity';
+import { User } from '@/features/users/entities/user.entity';
+import { Venture } from '@/features/ventures/entities/venture.entity';
 
 const makeCountQb = (count: number) => ({
   where: jest.fn().mockReturnThis(),
@@ -101,8 +101,14 @@ describe('StatsService', () => {
   });
 
   it('returns admin year stats with detailed participation tree', async () => {
-    const { service, programRepo, projectParticipationCountQb, eventParticipationCountQb, projectParticipationRawQb, eventParticipationRawQb } =
-      setup();
+    const {
+      service,
+      programRepo,
+      projectParticipationCountQb,
+      eventParticipationCountQb,
+      projectParticipationRawQb,
+      eventParticipationRawQb
+    } = setup();
 
     projectParticipationCountQb.getCount.mockResolvedValue(4);
     eventParticipationCountQb.getCount.mockResolvedValue(3);
@@ -152,8 +158,14 @@ describe('StatsService', () => {
   });
 
   it('defaults to zero participation counts when no rows are found', async () => {
-    const { service, programRepo, projectParticipationCountQb, eventParticipationCountQb, projectParticipationRawQb, eventParticipationRawQb } =
-      setup();
+    const {
+      service,
+      programRepo,
+      projectParticipationCountQb,
+      eventParticipationCountQb,
+      projectParticipationRawQb,
+      eventParticipationRawQb
+    } = setup();
 
     projectParticipationCountQb.getCount.mockResolvedValue(0);
     eventParticipationCountQb.getCount.mockResolvedValue(0);

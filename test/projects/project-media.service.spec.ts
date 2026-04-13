@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
-import { ProjectMediaService } from '@/modules/projects/services/project-media.service';
+import { ProjectMediaService } from '@/features/projects/services/project-media.service';
 
 describe('ProjectMediaService', () => {
   afterEach(() => {
@@ -46,7 +46,10 @@ describe('ProjectMediaService', () => {
     const unlinkSpy = jest.spyOn(fs, 'unlink').mockResolvedValue(undefined);
     projectsService.findOne.mockResolvedValue({ id: 'proj1', cover: 'old.png' });
     projectsService.addCover.mockResolvedValue({ id: 'proj1', cover: 'new.png' });
-    await expect(service.addCover('proj1', { filename: 'new.png' } as any)).resolves.toEqual({ id: 'proj1', cover: 'new.png' });
+    await expect(service.addCover('proj1', { filename: 'new.png' } as any)).resolves.toEqual({
+      id: 'proj1',
+      cover: 'new.png'
+    });
     expect(unlinkSpy).toHaveBeenCalledWith('./uploads/projects/old.png');
   });
 

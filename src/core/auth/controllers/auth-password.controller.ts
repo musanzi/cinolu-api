@@ -1,6 +1,6 @@
 import { Body, Controller, Patch, Post } from '@nestjs/common';
 import { CurrentUser, Public } from '@musanzi/nestjs-session-auth';
-import { User } from '@/modules/users/entities/user.entity';
+import { User } from '@/features/users/entities/user.entity';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { UpdatePasswordDto } from '../dto/update-password.dto';

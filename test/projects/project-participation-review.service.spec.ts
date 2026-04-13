@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { ProjectParticipationReviewService } from '@/modules/projects/services/project-participation-review.service';
+import { ProjectParticipationReviewService } from '@/features/projects/services/project-participation-review.service';
 
 describe('ProjectParticipationReviewService', () => {
   const setup = () => {
@@ -51,12 +51,16 @@ describe('ProjectParticipationReviewService', () => {
     participationService.saveMany.mockResolvedValue(undefined);
 
     await expect(
-      service.createReview('pp1', reviewer as any, {
-        phaseId: 'phase-1',
-        score: 80,
-        message: 'Bien joué',
-        notifyParticipant: true
-      } as any)
+      service.createReview(
+        'pp1',
+        reviewer as any,
+        {
+          phaseId: 'phase-1',
+          score: 80,
+          message: 'Bien joué',
+          notifyParticipant: true
+        } as any
+      )
     ).resolves.toEqual({
       id: 'r1',
       score: 80,
@@ -128,9 +132,9 @@ describe('ProjectParticipationReviewService', () => {
     });
     phasesService.findOne.mockResolvedValue({ id: 'phase-1' });
 
-    await expect(service.createReview('pp1', { id: 'reviewer-1' } as any, { phaseId: 'phase-1', score: 50 } as any)).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+    await expect(
+      service.createReview('pp1', { id: 'reviewer-1' } as any, { phaseId: 'phase-1', score: 50 } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('does not auto promote when score is below the threshold', async () => {
@@ -154,12 +158,16 @@ describe('ProjectParticipationReviewService', () => {
     reviewRepository.save.mockResolvedValue({ id: 'r1', score: 59, message: 'Continue', reviewer });
 
     await expect(
-      service.createReview('pp1', reviewer as any, {
-        phaseId: 'phase-1',
-        score: 59,
-        message: 'Continue',
-        notifyParticipant: true
-      } as any)
+      service.createReview(
+        'pp1',
+        reviewer as any,
+        {
+          phaseId: 'phase-1',
+          score: 59,
+          message: 'Continue',
+          notifyParticipant: true
+        } as any
+      )
     ).resolves.toEqual({
       id: 'r1',
       score: 59,
@@ -210,11 +218,16 @@ describe('ProjectParticipationReviewService', () => {
     participationService.saveMany.mockResolvedValue(undefined);
 
     await expect(
-      service.updateReview('pp1', 'r1', reviewer as any, {
-        score: 50,
-        message: 'Insuffisant',
-        notifyParticipant: true
-      } as any)
+      service.updateReview(
+        'pp1',
+        'r1',
+        reviewer as any,
+        {
+          score: 50,
+          message: 'Insuffisant',
+          notifyParticipant: true
+        } as any
+      )
     ).resolves.toEqual({
       id: 'r1',
       score: 50,
@@ -247,8 +260,8 @@ describe('ProjectParticipationReviewService', () => {
     phasesService.findOne.mockResolvedValue({ id: 'phase-1' });
     reviewRepository.findOne.mockResolvedValue({ id: 'r1' });
 
-    await expect(service.createReview('pp1', { id: 'reviewer-1' } as any, { phaseId: 'phase-1', score: 80 } as any)).rejects.toBeInstanceOf(
-      BadRequestException
-    );
+    await expect(
+      service.createReview('pp1', { id: 'reviewer-1' } as any, { phaseId: 'phase-1', score: 80 } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

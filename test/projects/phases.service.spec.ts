@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { PhasesService } from '@/modules/projects/phases/services/phases.service';
+import { PhasesService } from '@/features/projects/phases/services/phases.service';
 
 describe('PhasesService', () => {
   const setup = () => {
@@ -55,7 +55,8 @@ describe('PhasesService', () => {
 
   it('updates phase and syncs deliverables', async () => {
     const { service, phaseRepository, deliverablesService } = setup();
-    jest.spyOn(service, 'findOne')
+    jest
+      .spyOn(service, 'findOne')
       .mockResolvedValueOnce({ id: 'ph1', mentors: [{ id: 'old' }] } as any)
       .mockResolvedValueOnce({ id: 'ph1', name: 'updated' } as any);
     phaseRepository.save.mockResolvedValue(undefined);
@@ -79,7 +80,10 @@ describe('PhasesService', () => {
     expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('phase.deliverables', 'deliverables');
     expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('phase.mentors', 'mentors');
     expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith('mentors.owner', 'owner');
-    expect(queryBuilder.loadRelationCountAndMap).toHaveBeenCalledWith('phase.participationsCount', 'phase.participations');
+    expect(queryBuilder.loadRelationCountAndMap).toHaveBeenCalledWith(
+      'phase.participationsCount',
+      'phase.participations'
+    );
   });
 
   it('throws on findAll failure', async () => {

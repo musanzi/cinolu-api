@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { TagsService } from '@/modules/blog/tags/tags.service';
+import { TagsService } from '@/features/blog/tags/tags.service';
 
 const makeTagQueryBuilder = (result: [any[], number] = [[], 0]) => ({
   andWhere: jest.fn().mockReturnThis(),

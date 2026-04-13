@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { parseUsersCsv } from '@/core/helpers/user-csv.helper';
-import { ProjectParticipationService } from '@/modules/projects/services/project-participations.service';
+import { ProjectParticipationService } from '@/features/projects/services/project-participations.service';
 
 jest.mock('@/core/helpers/user-csv.helper', () => ({
   parseUsersCsv: jest.fn()

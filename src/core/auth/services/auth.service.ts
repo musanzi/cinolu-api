@@ -4,13 +4,13 @@ import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@/modules/users/entities/user.entity';
-import { UsersService } from '@/modules/users/services/users.service';
-import { SignUpResult } from '@/modules/users/types/sign-up-result.type';
+import { User } from '@/features/users/entities/user.entity';
+import { UsersService } from '@/features/users/services/users.service';
+import { SignUpResult } from '@/features/users/types/sign-up-result.type';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { ContactSupportDto } from '../dto/contact-support.dto';
-import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
-import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
+import { CreateUserDto } from '@/features/users/dto/create-user.dto';
+import { UpdateUserDto } from '@/features/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {

@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { SubprogramsService } from '@/modules/subprograms/services/subprograms.service';
+import { SubprogramsService } from '@/features/subprograms/services/subprograms.service';
 
 describe('SubprogramsService', () => {
   const setup = () => {
@@ -97,7 +97,10 @@ describe('SubprogramsService', () => {
     const { service, subprogramRepository } = setup();
     jest.spyOn(service, 'findOne').mockResolvedValue({ id: 's1', program: { id: 'p1' } } as any);
     subprogramRepository.save.mockResolvedValue({ id: 's1', name: 'new' });
-    await expect(service.update('s1', { name: 'new', programId: 'p2' } as any)).resolves.toEqual({ id: 's1', name: 'new' });
+    await expect(service.update('s1', { name: 'new', programId: 'p2' } as any)).resolves.toEqual({
+      id: 's1',
+      name: 'new'
+    });
   });
 
   it('throws on update failure', async () => {

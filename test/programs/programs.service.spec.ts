@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ProgramsService } from '@/modules/programs/services/programs.service';
+import { ProgramsService } from '@/features/programs/services/programs.service';
 
 const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -29,7 +29,9 @@ describe('ProgramsService', () => {
     const { service, programRepository } = setup();
     programRepository.create.mockReturnValue({ name: 'Program' });
     programRepository.save.mockResolvedValue({ id: 'p1' });
-    await expect(service.create({ name: 'Program', category: 'c1', sector: 's1' } as any)).resolves.toEqual({ id: 'p1' });
+    await expect(service.create({ name: 'Program', category: 'c1', sector: 's1' } as any)).resolves.toEqual({
+      id: 'p1'
+    });
     expect(programRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ category: { id: 'c1' }, sector: { id: 's1' } })
     );

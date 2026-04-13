@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { CurrentUser, GoogleAuthGuard, LocalAuthGuard, Public } from '@musanzi/nestjs-session-auth';
-import { User } from '@/modules/users/entities/user.entity';
-import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
+import { User } from '@/features/users/entities/user.entity';
+import { UpdateUserDto } from '@/features/users/dto/update-user.dto';
 import { ContactSupportDto } from '../dto/contact-support.dto';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { AuthService } from '../services/auth.service';

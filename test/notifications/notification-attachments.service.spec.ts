@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
-import { NotificationAttachmentsService } from '@/modules/notifications/services/notification-attachments.service';
+import { NotificationAttachmentsService } from '@/features/notifications/services/notification-attachments.service';
 
 describe('NotificationAttachmentsService', () => {
   afterEach(() => {

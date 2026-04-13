@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { VenturesService } from '@/modules/ventures/services/ventures.service';
+import { VenturesService } from '@/features/ventures/services/ventures.service';
 
 const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -108,7 +108,9 @@ describe('VenturesService', () => {
   it('finds all ventures with query', async () => {
     const { service, queryBuilder } = setup();
     await expect(service.findAll({ page: 2, q: 'foo' } as any)).resolves.toEqual([[{ id: 'v1' }], 1]);
-    expect(queryBuilder.where).toHaveBeenCalledWith('venture.name LIKE :q OR venture.description LIKE :q', { q: '%foo%' });
+    expect(queryBuilder.where).toHaveBeenCalledWith('venture.name LIKE :q OR venture.description LIKE :q', {
+      q: '%foo%'
+    });
     expect(queryBuilder.skip).toHaveBeenCalledWith(40);
   });
 

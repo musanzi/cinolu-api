@@ -1,4 +1,4 @@
-import { User } from '@/modules/users/entities/user.entity';
+import { User } from '@/features/users/entities/user.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ContactSupportDto } from '../dto/contact-support.dto';

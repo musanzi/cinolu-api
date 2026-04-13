@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { DeliverablesService } from '@/modules/projects/phases/deliverables/services/deliverables.service';
+import { DeliverablesService } from '@/features/projects/phases/deliverables/services/deliverables.service';
 
 describe('DeliverablesService', () => {
   const setup = () => {
@@ -64,12 +64,16 @@ describe('DeliverablesService', () => {
   it('throws when sync contains unknown id', async () => {
     const { service, deliverableRepository } = setup();
     deliverableRepository.find.mockResolvedValue([{ id: 'd1', title: 'A' }]);
-    await expect(service.sync('phase-1', [{ id: 'd999', title: 'X' }] as any)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.sync('phase-1', [{ id: 'd999', title: 'X' }] as any)).rejects.toBeInstanceOf(
+      BadRequestException
+    );
   });
 
   it('throws on sync repository failure', async () => {
     const { service, deliverableRepository } = setup();
     deliverableRepository.find.mockRejectedValue(new Error('bad'));
-    await expect(service.sync('phase-1', [{ id: 'd1', title: 'A' }] as any)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.sync('phase-1', [{ id: 'd1', title: 'A' }] as any)).rejects.toBeInstanceOf(
+      BadRequestException
+    );
   });
 });

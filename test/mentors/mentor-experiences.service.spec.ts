@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { MentorExperiencesService } from '@/modules/mentors/services/mentor-experiences.service';
+import { MentorExperiencesService } from '@/features/mentors/services/mentor-experiences.service';
 
 describe('MentorExperiencesService', () => {
   const setup = () => {
@@ -28,7 +28,10 @@ describe('MentorExperiencesService', () => {
       { role: 'new', start_date: '2025-01-01', end_date: '2025-12-31' } as any
     ]);
 
-    expect(result).toEqual([{ id: 'e1', role: 'updated' }, { id: 'e3', role: 'new' }]);
+    expect(result).toEqual([
+      { id: 'e1', role: 'updated' },
+      { id: 'e3', role: 'new' }
+    ]);
     expect(experienceRepository.delete).toHaveBeenCalledWith(['e2']);
   });
 

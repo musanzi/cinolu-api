@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ProjectsService } from '@/modules/projects/services/projects.service';
+import { ProjectsService } from '@/features/projects/services/projects.service';
 
 const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -47,9 +47,9 @@ describe('ProjectsService', () => {
 
   it('finds all with filter and category as string', async () => {
     const { service, queryBuilder } = setup();
-    await expect(service.findAll({ page: 2, categories: 'c1', q: 'search', filter: 'published' } as any)).resolves.toEqual(
-      [[{ id: 'p1' }], 1]
-    );
+    await expect(
+      service.findAll({ page: 2, categories: 'c1', q: 'search', filter: 'published' } as any)
+    ).resolves.toEqual([[{ id: 'p1' }], 1]);
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('p.is_published = :isPublished', { isPublished: true });
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('categories.id IN (:...categoryIds)', { categoryIds: ['c1'] });
     expect(queryBuilder.skip).toHaveBeenCalledWith(20);
@@ -72,10 +72,9 @@ describe('ProjectsService', () => {
 
   it('finds published with status filters', async () => {
     const { service, queryBuilder } = setup();
-    await expect(service.findPublished({ page: 1, status: 'past', categories: ['c1'], q: 'abc' } as any)).resolves.toEqual([
-      [{ id: 'p1' }],
-      1
-    ]);
+    await expect(
+      service.findPublished({ page: 1, status: 'past', categories: ['c1'], q: 'abc' } as any)
+    ).resolves.toEqual([[{ id: 'p1' }], 1]);
     await service.findPublished({ status: 'current' } as any);
     await service.findPublished({ status: 'future' } as any);
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('p.ended_at < NOW()');

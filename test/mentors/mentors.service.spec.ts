@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { MentorStatus } from '@/modules/mentors/enums/mentor.enum';
-import { MentorsService } from '@/modules/mentors/services/mentors.service';
+import { MentorStatus } from '@/features/mentors/enums/mentor.enum';
+import { MentorsService } from '@/features/mentors/services/mentors.service';
 
 describe('MentorsService', () => {
   const makeQueryBuilder = (result: [any[], number] = [[], 0]) => ({
@@ -41,12 +41,15 @@ describe('MentorsService', () => {
 
   it('updates mentor request and experiences', async () => {
     const { service, mentorRepository, experiencesService } = setup();
-    jest.spyOn(service, 'findOne')
+    jest
+      .spyOn(service, 'findOne')
       .mockResolvedValueOnce({ id: 'm1', expertises: [] } as any)
       .mockResolvedValueOnce({ id: 'm1', updated: true } as any);
     experiencesService.saveExperiences.mockResolvedValue(undefined);
     mentorRepository.save.mockResolvedValue(undefined);
-    await expect(service.updateRequest('m1', { expertises: ['e1'], experiences: [{ role: 'r' }] } as any)).resolves.toEqual({
+    await expect(
+      service.updateRequest('m1', { expertises: ['e1'], experiences: [{ role: 'r' }] } as any)
+    ).resolves.toEqual({
       id: 'm1',
       updated: true
     });
@@ -73,13 +76,16 @@ describe('MentorsService', () => {
 
   it('updates full mentor profile', async () => {
     const { service, experiencesService, usersService, mentorRepository } = setup();
-    jest.spyOn(service, 'findOne')
+    jest
+      .spyOn(service, 'findOne')
       .mockResolvedValueOnce({ id: 'm1', owner: { id: 'u1' }, expertises: [] } as any)
       .mockResolvedValueOnce({ id: 'm1', done: true } as any);
     experiencesService.saveExperiences.mockResolvedValue(undefined);
     usersService.update.mockResolvedValue(undefined);
     mentorRepository.save.mockResolvedValue(undefined);
-    await expect(service.updateMentor('m1', { user: {}, mentor: { expertises: ['x'], experiences: [] } } as any)).resolves.toEqual({
+    await expect(
+      service.updateMentor('m1', { user: {}, mentor: { expertises: ['x'], experiences: [] } } as any)
+    ).resolves.toEqual({
       id: 'm1',
       done: true
     });
@@ -104,7 +110,8 @@ describe('MentorsService', () => {
 
   it('approves mentor and emits event', async () => {
     const { service, mentorRepository, usersService, eventEmitter } = setup();
-    jest.spyOn(service, 'findOne')
+    jest
+      .spyOn(service, 'findOne')
       .mockResolvedValueOnce({ id: 'm1', owner: { id: 'u1' } } as any)
       .mockResolvedValueOnce({ id: 'm1', status: MentorStatus.APPROVED } as any);
     mentorRepository.update.mockResolvedValue(undefined);
@@ -115,7 +122,8 @@ describe('MentorsService', () => {
 
   it('rejects mentor and emits event', async () => {
     const { service, mentorRepository, usersService, eventEmitter } = setup();
-    jest.spyOn(service, 'findOne')
+    jest
+      .spyOn(service, 'findOne')
       .mockResolvedValueOnce({ id: 'm1', owner: { id: 'u1' } } as any)
       .mockResolvedValueOnce({ id: 'm1', status: MentorStatus.REJECTED } as any);
     mentorRepository.update.mockResolvedValue(undefined);
@@ -137,7 +145,10 @@ describe('MentorsService', () => {
     jest.spyOn(service, 'findOne').mockResolvedValue({ id: 'm1', expertises: [], cv: null } as any);
     experiencesService.saveExperiences.mockResolvedValue(undefined);
     mentorRepository.save.mockResolvedValue({ id: 'm1', cv: 'cv.pdf' });
-    await expect(service.update('m1', { experiences: [], expertises: [] } as any)).resolves.toEqual({ id: 'm1', cv: 'cv.pdf' });
+    await expect(service.update('m1', { experiences: [], expertises: [] } as any)).resolves.toEqual({
+      id: 'm1',
+      cv: 'cv.pdf'
+    });
     await expect(service.addCv('m1', 'cv.pdf')).resolves.toEqual({ id: 'm1', cv: 'cv.pdf' });
   });
 

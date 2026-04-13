@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
-import { MentorMediaService } from '@/modules/mentors/services/mentor-media.service';
+import { MentorMediaService } from '@/features/mentors/services/mentor-media.service';
 
 describe('MentorMediaService', () => {
   afterEach(() => {

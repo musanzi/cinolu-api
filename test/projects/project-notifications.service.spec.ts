@@ -1,4 +1,4 @@
-import { ProjectNotificationService } from '@/modules/projects/services/project-notifications.service';
+import { ProjectNotificationService } from '@/features/projects/services/project-notifications.service';
 import { BadRequestException } from '@nestjs/common';
 
 describe('ProjectNotificationService', () => {

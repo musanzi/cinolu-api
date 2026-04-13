@@ -4,7 +4,7 @@ import { AuthPasswordController } from './controllers/auth-password.controller';
 import { AuthService } from './services/auth.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { UsersModule } from '@/modules/users/users.module';
+import { UsersModule } from '@/features/users/users.module';
 import { AuthEmailService } from './services/auth-email.service';
 import { AuthPasswordService } from './services/auth-password.service';
 import { SessionAuthModule } from '@musanzi/nestjs-session-auth';

@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './core/auth/auth.module';
-import { BlogModule } from './modules/blog/blog.module';
-import { EventsModule } from './modules/events/events.module';
-import { HighlightsModule } from './modules/highlights/highlights.module';
-import { ProgramsModule } from './modules/programs/programs.module';
-import { ProjectsModule } from './modules/projects/projects.module';
-import { StatsModule } from './modules/stats/stats.module';
-import { SubprogramsModule } from './modules/subprograms/subprograms.module';
-import { UsersModule } from './modules/users/users.module';
+import { BlogModule } from './features/blog/blog.module';
+import { EventsModule } from './features/events/events.module';
+import { HighlightsModule } from './features/highlights/highlights.module';
+import { ProgramsModule } from './features/programs/programs.module';
+import { ProjectsModule } from './features/projects/projects.module';
+import { StatsModule } from './features/stats/stats.module';
+import { SubprogramsModule } from './features/subprograms/subprograms.module';
+import { UsersModule } from './features/users/users.module';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor';
 import { SessionAuthGuard, RbacGuard } from '@musanzi/nestjs-session-auth';
-import { MentorsModule } from './modules/mentors/mentors.module';
-import { VenturesModule } from './modules/ventures/ventures.module';
-import { NotificationsModule } from './modules/notifications/notifications.module';
+import { MentorsModule } from './features/mentors/mentors.module';
+import { VenturesModule } from './features/ventures/ventures.module';
+import { NotificationsModule } from './features/notifications/notifications.module';
 import { GalleriesModule } from './shared/galleries/galleries.module';
 import { DatabaseModule } from './shared/database/database.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -21,7 +21,7 @@ import { EmailModule } from './shared/email/email.module';
 import { JwtModule } from './shared/jwt/jwt.module';
 import { StaticModule } from './shared/static/static.module';
 import { ConfigModule } from './shared/config/config.module';
-import { ResourcesModule } from './modules/projects/resources/resources.module';
+import { ResourcesModule } from './features/projects/resources/resources.module';
 
 @Module({
   imports: [

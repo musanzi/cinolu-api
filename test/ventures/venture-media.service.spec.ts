@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
-import { VentureMediaService } from '@/modules/ventures/services/venture-media.service';
+import { VentureMediaService } from '@/features/ventures/services/venture-media.service';
 
 describe('VentureMediaService', () => {
   afterEach(() => {

@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ResourceCategory, Resource } from '@/modules/projects/resources/entities/resource.entity';
-import { ResourcesService } from '@/modules/projects/resources/services/resources.service';
+import { ResourceCategory, Resource } from '@/features/projects/resources/entities/resource.entity';
+import { ResourcesService } from '@/features/projects/resources/services/resources.service';
 
 const makeQueryBuilder = (result: [Resource[], number] = [[{ id: 'r1' } as Resource], 1]) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -78,7 +78,9 @@ describe('ResourcesService', () => {
     const { service, projectsService, queryBuilder } = setup();
     projectsService.findOne.mockResolvedValue({ id: 'project-1' });
 
-    await expect(service.findByProject('project-1', { page: 2, category: ResourceCategory.GUIDE } as any)).resolves.toEqual([[{ id: 'r1' }], 1]);
+    await expect(
+      service.findByProject('project-1', { page: 2, category: ResourceCategory.GUIDE } as any)
+    ).resolves.toEqual([[{ id: 'r1' }], 1]);
     expect(queryBuilder.where).toHaveBeenCalledWith('r.projectId = :scopeId', { scopeId: 'project-1' });
     expect(queryBuilder.andWhere).toHaveBeenCalledWith('r.category = :category', {
       category: ResourceCategory.GUIDE
@@ -139,6 +141,10 @@ describe('ResourcesService', () => {
     await expect(service.update('r1', {} as any)).rejects.toBeInstanceOf(BadRequestException);
     await expect(service.remove('r1')).rejects.toBeInstanceOf(BadRequestException);
     resourceRepository.save.mockRejectedValue(new Error('bad'));
-    await expect(service.create({ title: 'x', description: 'y', category: ResourceCategory.OTHER, project_id: 'p1' }, { filename: 'x.pdf' } as any)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.create({ title: 'x', description: 'y', category: ResourceCategory.OTHER, project_id: 'p1' }, {
+        filename: 'x.pdf'
+      } as any)
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

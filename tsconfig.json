@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "resolvePackageJsonExports": false,
     "esModuleInterop": true,
     "isolatedModules": false,
@@ -22,15 +22,9 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/shared/*": [
-        "src/shared/*"
-      ],
-      "@/core/*": [
-        "src/core/*"
-      ],
-      "@/modules/*": [
-        "src/modules/*"
-      ]
+      "@/shared/*": ["src/shared/*"],
+      "@/core/*": ["src/core/*"],
+      "@/features/*": ["src/features/*"]
     }
   }
 }
