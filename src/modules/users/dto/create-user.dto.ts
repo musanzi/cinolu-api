@@ -1,4 +1,5 @@
-import { IsArray, IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsEmail, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import { UserSocialLinks } from '../interfaces';
 
 export class CreateUserDto {
   @IsEmail()
@@ -14,6 +15,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @IsOptional()
+  @IsObject()
+  socialLinks?: UserSocialLinks;
 
   @IsOptional()
   @IsArray()

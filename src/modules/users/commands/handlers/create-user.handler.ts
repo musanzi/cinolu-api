@@ -23,7 +23,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, IUserRespo
   ) {}
 
   async execute(command: CreateUser): Promise<IUserResponse> {
-    const { email, name, password: suppliedPassword, avatar, roles } = command.createUserDto;
+    const { email, name, password: suppliedPassword, avatar, socialLinks, roles } = command.createUserDto;
     const hasPassword = Boolean(suppliedPassword);
     const generatedPassword = hasPassword ? undefined : randomInt(0, 1_000_000).toString().padStart(6, '0');
     const password = suppliedPassword ?? generatedPassword;
@@ -35,6 +35,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, IUserRespo
         name,
         password,
         avatar,
+        socialLinks,
         roles: userRoles
       });
 

@@ -49,11 +49,14 @@ type SignInBody = {
   password: string;
 };
 
+type UserSocialLinks = Record<string, unknown>;
+
 type UpdateUserBody = {
   email?: string;
   name?: string;
   password?: string;
   avatar?: string;
+  socialLinks?: UserSocialLinks;
   roles?: string[]; // role UUIDs
 };
 
@@ -62,6 +65,7 @@ type CreateUserBody = {
   name: string;
   password?: string;
   avatar?: string;
+  socialLinks?: UserSocialLinks;
   roles?: string[]; // role UUIDs
 };
 
@@ -124,6 +128,7 @@ type UserResponse = EntityFields & {
   email: string;
   name: string;
   avatar: string | null;
+  socialLinks: UserSocialLinks;
   roles: string[]; // role names, e.g. user, staff, mentor
 };
 
@@ -230,6 +235,19 @@ Every route in this section requires a valid session. Staff users can also call 
 | Update password | `PATCH /auth/password/update` | Body: `{ password: string }`; min 6 | `UserResponse` |
 | Upload avatar | `POST /users/profile/avatar` | `multipart/form-data`, file field `avatar` | `UserResponse`; replaces the previous avatar |
 | Sign out | `POST /auth/signout` | None | `void`; destroys the session |
+
+`socialLinks` accepts a JSON object whose keys and values are defined by the frontend. For example:
+
+```json
+{
+  "socialLinks": {
+    "linkedin": "https://linkedin.com/in/example",
+    "github": "https://github.com/example"
+  }
+}
+```
+
+Send an empty object to `PATCH /auth/me/update` to clear all social links. The field defaults to `{}` for users without saved links.
 
 ## Catalogs and program discovery
 
