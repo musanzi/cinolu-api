@@ -35,13 +35,6 @@ Portfolio
               └── Review form        → user reviews
 ```
 
-There are two roles: `admin` and `user`.
-
-- Administrators manage portfolios, programs, activity types, activity categories, users, and roles. They can also manage every activity and inspect every participation or review.
-- Program managers are regular users assigned through a program's `programManagerIds`. They can create and manage activities for their programs, process participations, export participants, and inspect reviews and statistics.
-- Authenticated users can browse available activities, submit one participation and one review per activity, and manage their own submissions subject to the activity rules.
-- `GET /activities/recent` is public. Every other non-auth endpoint is explicitly listed as public below.
-
 ## Prerequisites
 
 - Node.js 24+
