@@ -14,10 +14,10 @@ export class UpdateReviewHandler implements ICommandHandler<UpdateReview, Activi
 
   async execute(command: UpdateReview): Promise<ActivityReview> {
     const { userId, id, saveReviewDto } = command;
-    const review = await this.repository.findOneBy({ id });
+    const review = await this.repository.findOne({ where: { id }, relations: { user: true } });
 
     if (!review) throw new NotFoundException('Avis introuvable');
-    if (review.userId !== userId) throw new ForbiddenException('Vous ne pouvez modifier que votre avis');
+    if (review.user.id !== userId) throw new ForbiddenException('Vous ne pouvez modifier que votre avis');
 
     return this.repository.save(this.repository.merge(review, saveReviewDto, { submitDate: new Date() }));
   }

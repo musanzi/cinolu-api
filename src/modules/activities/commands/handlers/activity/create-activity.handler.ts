@@ -31,13 +31,13 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
     }
 
     try {
-      const activityFields = { ...command.createActivityDto };
-
-      delete activityFields.categoryIds;
+      const { programId, typeId, categoryIds, ...activityFields } = command.createActivityDto;
 
       return await this.repository.save(
         this.repository.create({
           ...activityFields,
+          program: { id: programId },
+          type: { id: typeId },
           categories: mapActivityCategories(categoryIds)
         })
       );

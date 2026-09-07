@@ -17,7 +17,7 @@ export class CreateProgramHandler implements ICommandHandler<CreateProgram, Prog
   ) {}
 
   async execute(command: CreateProgram): Promise<Program> {
-    const { portfolioId, programManagerIds } = command.createProgramDto;
+    const { portfolioId, programManagerIds, ...programFields } = command.createProgramDto;
 
     await this.queryBus.execute(new FindPortfolioById(portfolioId));
 
@@ -30,7 +30,8 @@ export class CreateProgramHandler implements ICommandHandler<CreateProgram, Prog
 
     try {
       const program = this.repository.create({
-        ...command.createProgramDto,
+        ...programFields,
+        portfolio: { id: portfolioId },
         programManagers: mapProgramManagers(programManagerIds)
       });
 

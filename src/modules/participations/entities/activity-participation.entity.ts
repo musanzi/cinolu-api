@@ -6,7 +6,7 @@ import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { ParticipationStatus } from '../interfaces';
 
 @Entity()
-@Unique(['activityId', 'userId'])
+@Unique(['activity', 'user'])
 export class ActivityParticipation extends AbstractEntity {
   @ManyToOne(() => Activity, (activity) => activity.participations, { onDelete: 'CASCADE' })
   @JoinColumn()

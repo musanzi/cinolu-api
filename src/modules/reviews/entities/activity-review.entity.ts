@@ -5,7 +5,7 @@ import { User } from '@/modules/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()
-@Unique(['activityId', 'userId'])
+@Unique(['activity', 'user'])
 export class ActivityReview extends AbstractEntity {
   @ManyToOne(() => Activity, (activity) => activity.reviews, { onDelete: 'CASCADE' })
   @JoinColumn()

@@ -23,7 +23,12 @@ export class SaveReviewHandler implements ICommandHandler<SaveReview, ActivityRe
 
     try {
       return await this.repository.save(
-        this.repository.create({ activityId, userId: actor.id, ...saveReviewDto, submitDate: new Date() })
+        this.repository.create({
+          activity: { id: activityId },
+          user: { id: actor.id },
+          responses: saveReviewDto.responses,
+          submitDate: new Date()
+        })
       );
     } catch (error) {
       if (

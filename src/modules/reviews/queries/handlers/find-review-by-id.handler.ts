@@ -21,7 +21,7 @@ export class FindReviewByIdHandler implements IQueryHandler<FindReviewById, Acti
 
     if (!review) throw new NotFoundException('Avis introuvable');
 
-    if (review.userId !== query.actor.id) await assertReviewManager(this.repository, query.id, query.actor);
+    if (review.user.id !== query.actor.id) await assertReviewManager(this.repository, query.id, query.actor);
 
     return review;
   }

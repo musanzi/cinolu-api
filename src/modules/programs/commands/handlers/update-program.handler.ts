@@ -19,13 +19,14 @@ export class UpdateProgramHandler implements ICommandHandler<UpdateProgram, Prog
 
   async execute(command: UpdateProgram): Promise<Program> {
     const { id, updateProgramDto } = command;
-    const { portfolioId, programManagerIds } = updateProgramDto;
+    const { portfolioId, programManagerIds, ...programFields } = updateProgramDto;
     const program = await this.repository.findOne({ where: { id }, relations: { programManagers: true } });
 
     if (!program) throw new NotFoundException('Programme introuvable');
 
     if (portfolioId !== undefined) {
       await this.queryBus.execute(new FindPortfolioById(portfolioId));
+      this.repository.merge(program, { portfolio: { id: portfolioId } });
     }
 
     if (programManagerIds !== undefined) {
@@ -38,10 +39,6 @@ export class UpdateProgramHandler implements ICommandHandler<UpdateProgram, Prog
 
       program.programManagers = mapProgramManagers(programManagerIds) as User[];
     }
-
-    const programFields = { ...updateProgramDto };
-
-    delete programFields.programManagerIds;
 
     const updatedProgram = this.repository.merge(program, programFields);
 

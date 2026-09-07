@@ -24,9 +24,9 @@ export class SaveParticipationHandler implements ICommandHandler<SaveParticipati
     try {
       return await this.repository.save(
         this.repository.create({
-          activityId,
-          userId: actor.id,
-          ...saveParticipationDto,
+          activity: { id: activityId },
+          user: { id: actor.id },
+          responses: saveParticipationDto.responses,
           submitDate: new Date()
         })
       );

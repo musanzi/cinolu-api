@@ -21,23 +21,26 @@ export class UpdateActivityHandler implements ICommandHandler<UpdateActivity, Ac
     const { updateActivityDto } = command;
     const { programId, name, typeId, categoryIds, startDate, endDate, participationForm, reviewForm, description } =
       updateActivityDto;
-    const activity = await this.repository.findOne({ where: { id: command.id }, relations: { categories: true } });
+    const activity = await this.repository.findOne({
+      where: { id: command.id },
+      relations: { categories: true, program: true }
+    });
 
     if (!activity) throw new NotFoundException('Activité introuvable');
 
-    await this.queryBus.execute(new FindManagedProgramById(command.actor, activity.programId));
+    await this.queryBus.execute(new FindManagedProgramById(command.actor, activity.program.id));
 
     if (activity.startDate <= new Date())
       throw new BadRequestException('Une activité ayant déjà commencé ne peut pas être modifiée');
 
     if (programId !== undefined) {
       await this.queryBus.execute(new FindManagedProgramById(command.actor, programId));
-      activity.programId = programId;
+      this.repository.merge(activity, { program: { id: programId } });
     }
 
     if (typeId !== undefined) {
       await this.queryBus.execute(new FindActivityTypeById(typeId));
-      activity.typeId = typeId;
+      this.repository.merge(activity, { type: { id: typeId } });
     }
 
     if (categoryIds !== undefined) {

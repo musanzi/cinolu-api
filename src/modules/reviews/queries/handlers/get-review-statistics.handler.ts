@@ -19,7 +19,7 @@ export class GetReviewStatisticsHandler implements IQueryHandler<GetReviewStatis
     await this.queryBus.execute(new FindManagedActivityById(query.actor, query.activityId));
 
     const reviews = await this.repository.find({
-      where: { activityId: query.activityId },
+      where: { activity: { id: query.activityId } },
       order: { submitDate: 'ASC' }
     });
 
