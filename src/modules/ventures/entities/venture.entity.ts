@@ -1,7 +1,8 @@
 import { User } from '@/modules/users/entities/user.entity';
 import { AbstractEntity } from '@/shared/abstracts';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { VentureLinks, VentureStatus } from '../interfaces';
+import { VentureCategory } from './venture-category.entity';
 
 @Entity()
 export class Venture extends AbstractEntity {
@@ -11,6 +12,10 @@ export class Venture extends AbstractEntity {
 
   @Column({ type: 'varchar', length: 150 })
   name: string;
+
+  @ManyToMany(() => VentureCategory, (category) => category.ventures)
+  @JoinTable({ name: 'venture_categories' })
+  categories: VentureCategory[];
 
   @Column({ type: 'varchar', length: 180, unique: true })
   slug: string;

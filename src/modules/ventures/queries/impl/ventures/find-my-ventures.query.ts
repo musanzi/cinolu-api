@@ -1,6 +1,6 @@
 import { Query } from '@nestjs/cqrs';
-import { Venture } from '../../entities';
-import { IFilterVentures } from '../../interfaces';
+import { Venture } from '../../../entities';
+import { IFilterVentures } from '../../../interfaces';
 
 export class FindMyVentures extends Query<[Venture[], number]> {
   constructor(

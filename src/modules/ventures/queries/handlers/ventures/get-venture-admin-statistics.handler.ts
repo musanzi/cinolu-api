@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Venture } from '../../entities';
-import { IVentureAdminStatistics, IVentureMonthlyStatusCountRow, IVentureStatusCountRow } from '../../interfaces';
-import { GetVentureAdminStatistics } from '../impl';
+import { Venture } from '../../../entities';
+import { IVentureAdminStatistics, IVentureMonthlyStatusCountRow, IVentureStatusCountRow } from '../../../interfaces';
+import { GetVentureAdminStatistics } from '../../impl';
 
 @QueryHandler(GetVentureAdminStatistics)
 export class GetVentureAdminStatisticsHandler implements IQueryHandler<

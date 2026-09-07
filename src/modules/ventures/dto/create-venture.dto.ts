@@ -1,7 +1,13 @@
-import { IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayUnique, IsArray, IsObject, IsOptional, IsString, IsUUID, MaxLength, ValidateIf } from 'class-validator';
 import { VentureLinks } from '../interfaces';
 
 export class CreateVentureDto {
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsArray()
+  @ArrayUnique()
+  @IsUUID('4', { each: true })
+  categoryIds?: string[];
+
   @IsString()
   @MaxLength(150)
   name: string;

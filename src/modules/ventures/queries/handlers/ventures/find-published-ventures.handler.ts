@@ -2,9 +2,9 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { parsePaginationParams } from '@/shared/helpers';
-import { Venture } from '../../entities';
-import { VentureStatus } from '../../interfaces';
-import { FindPublishedVentures } from '../impl';
+import { Venture } from '../../../entities';
+import { VentureStatus } from '../../../interfaces';
+import { FindPublishedVentures } from '../../impl';
 
 @QueryHandler(FindPublishedVentures)
 export class FindPublishedVenturesHandler implements IQueryHandler<FindPublishedVentures, [Venture[], number]> {
@@ -14,6 +14,7 @@ export class FindPublishedVenturesHandler implements IQueryHandler<FindPublished
     const { pageNumber, limitNumber } = parsePaginationParams(query.params);
     const builder = this.repository
       .createQueryBuilder('venture')
+      .leftJoinAndSelect('venture.categories', 'category')
       .where('venture.status = :status', { status: VentureStatus.PUBLISHED })
       .orderBy('venture.updatedAt', 'DESC');
 
@@ -22,6 +23,7 @@ export class FindPublishedVenturesHandler implements IQueryHandler<FindPublished
         q: `%${query.params.q}%`
       });
     }
+    if (query.params.categoryId) builder.andWhere('category.id = :categoryId', { categoryId: query.params.categoryId });
 
     return builder
       .skip((pageNumber - 1) * limitNumber)

@@ -9,6 +9,7 @@ export enum VentureStatus {
 export type VentureLinks = Record<string, unknown>;
 
 export interface IFilterVentures extends IPagination {
+  categoryId?: string;
   q?: string;
   status?: VentureStatus;
 }

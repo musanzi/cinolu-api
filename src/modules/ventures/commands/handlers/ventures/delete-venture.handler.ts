@@ -2,8 +2,8 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Venture } from '../../entities';
-import { DeleteVenture } from '../impl';
+import { Venture } from '../../../entities';
+import { DeleteVenture } from '../../impl';
 
 @CommandHandler(DeleteVenture)
 export class DeleteVentureHandler implements ICommandHandler<DeleteVenture, void> {

@@ -2,8 +2,8 @@ import { NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Venture } from '../../entities';
-import { UpdateVentureStatus } from '../impl';
+import { Venture } from '../../../entities';
+import { UpdateVentureStatus } from '../../impl';
 
 @CommandHandler(UpdateVentureStatus)
 export class UpdateVentureStatusHandler implements ICommandHandler<UpdateVentureStatus, Venture> {
