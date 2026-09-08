@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent, UpdateEvent } from 'typeorm';
-import { Portfolio } from '../entities/portfolio.entity';
+import { Portfolio } from '../entities';
 
 @EventSubscriber()
 export class PortfolioSubscriber implements EntitySubscriberInterface<Portfolio> {

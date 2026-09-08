@@ -7,6 +7,9 @@ export class SignUpDto {
   @IsEmail()
   email: string;
 
+  @IsString()
+  biography: string;
+
   @MinLength(6)
   password: string;
 }

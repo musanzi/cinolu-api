@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent, UpdateEvent } from 'typeorm';
-import { Activity } from '../entities/activity.entity';
+import { Activity } from '../entities';
 
 @EventSubscriber()
 export class ActivitySubscriber implements EntitySubscriberInterface<Activity> {
@@ -13,8 +13,7 @@ export class ActivitySubscriber implements EntitySubscriberInterface<Activity> {
   }
 
   beforeUpdate(event: UpdateEvent<Activity>): void {
-    if (!event.entity?.name) return;
-    event.entity.slug = this.createSlug(event.entity.name);
+    if (event.entity?.name) event.entity.slug = this.createSlug(event.entity.name);
   }
 
   private createSlug(name: string): string {

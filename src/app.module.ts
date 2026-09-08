@@ -14,13 +14,13 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RolesModule } from './modules/roles/roles.module';
 import { UsersModule } from './modules/users/users.module';
-import { StatsModule } from './modules/stats/stats.module';
 import { PortfoliosModule } from './modules/portfolios/portfolios.module';
 import { ProgramsModule } from './modules/programs/programs.module';
-import { ActivitiesModule } from './modules/activities/activities.module';
-import { ParticipationsModule } from './modules/participations/participations.module';
-import { ReviewsModule } from './modules/reviews/reviews.module';
+import { SectorsModule } from './modules/sectors/sectors.module';
 import { VenturesModule } from './modules/ventures/ventures.module';
+import { ActivitiesModule } from './modules/activities/activities.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { TypesModule } from './modules/types/types.module';
 
 @Module({
   imports: [
@@ -74,14 +74,14 @@ import { VenturesModule } from './modules/ventures/ventures.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
-    RolesModule,
-    StatsModule,
     PortfoliosModule,
     ProgramsModule,
+    SectorsModule,
+    VenturesModule,
     ActivitiesModule,
-    ParticipationsModule,
-    ReviewsModule,
-    VenturesModule
+    CategoriesModule,
+    TypesModule,
+    RolesModule
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },

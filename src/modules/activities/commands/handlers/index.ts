@@ -1,20 +1,14 @@
 import { Provider } from '@nestjs/common';
-import { CreateActivityHandler, DeleteActivityHandler, UpdateActivityHandler } from './activity';
-import {
-  CreateActivityCategoryHandler,
-  DeleteActivityCategoryHandler,
-  UpdateActivityCategoryHandler
-} from './activity-category';
-import { CreateActivityTypeHandler, DeleteActivityTypeHandler, UpdateActivityTypeHandler } from './activity-type';
+import { CreateActivityHandler } from './create-activity.handler';
+import { DeleteActivityHandler } from './delete-activity.handler';
+import { ToggleActivityPublicationHandler } from './toggle-activity-publication.handler';
+import { UpdateActivityHandler } from './update-activity.handler';
+import { UploadActivityCoverHandler } from './upload-activity-cover.handler';
 
 export const CommandHandlers: Provider[] = [
   CreateActivityHandler,
   UpdateActivityHandler,
   DeleteActivityHandler,
-  CreateActivityCategoryHandler,
-  UpdateActivityCategoryHandler,
-  DeleteActivityCategoryHandler,
-  CreateActivityTypeHandler,
-  UpdateActivityTypeHandler,
-  DeleteActivityTypeHandler
+  ToggleActivityPublicationHandler,
+  UploadActivityCoverHandler
 ];

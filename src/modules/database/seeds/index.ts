@@ -12,7 +12,9 @@ config({
 const seedUsers = [
   {
     email: process.env.ADMIN_EMAIL,
-    name: 'Admin',
+    name: 'Admin OneStop',
+    biography: '',
+    socialLinks: {},
     password: process.env.ADMIN_PASSWORD,
     role: Roles.STAFF
   }
@@ -53,11 +55,13 @@ async function seed(): Promise<void> {
         user = userRepository.create({
           email: seedUser.email,
           name: seedUser.name,
+          biography: '',
           password: await hash(seedUser.password, 10),
           roles: [role]
         });
       } else {
         user.name = seedUser.name;
+        user.biography = '';
         user.password = await hash(seedUser.password, 10);
         user.roles = [role];
       }

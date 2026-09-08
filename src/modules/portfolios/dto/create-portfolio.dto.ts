@@ -8,9 +8,4 @@ export class CreatePortfolioDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  logo?: string;
 }

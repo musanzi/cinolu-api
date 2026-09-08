@@ -1,10 +1,9 @@
 import { Readable } from 'stream';
 import { parse } from 'fast-csv';
-import { CreateUserDto } from '../dto';
 
-export function parseUsersCsv(buffer: Buffer): Promise<CreateUserDto[]> {
+export function parseUsersCsv(buffer: Buffer): Promise<{ name: string; email: string }[]> {
   return new Promise((resolve, reject) => {
-    const rows: CreateUserDto[] = [];
+    const rows: { name: string; email: string }[] = [];
     const stream = Readable.from(buffer.toString());
     stream
       .pipe(parse({ headers: true }))

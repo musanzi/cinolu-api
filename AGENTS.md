@@ -1,17 +1,31 @@
 ## Module
 
-When creating a feature, use the CQRS pattern: queries whenever possible, commands and events when possible. Use the barrel export pattern.
+When creating a feature, follow the CQRS pattern:
 
-### Folder structure
+- Use queries for read operations whenever appropriate.
+- Use commands for write or state-changing operations.
+- Use events when they provide a clear benefit, such as reacting to completed actions or decoupling side effects.
 
-- `queries` for queries with subfolders: `handlers` and `impl`
-- `commands` for commands with subfolders: `handlers` and `impl`
-- `controllers` for controllers
-- `interfaces` for types. No types should be defined directly in controllers, queries, commands, or events.
-- `helpers` for reusable helpers across the module
-- `dto` for DTOs
-- `entities` for entities
+### Folder Structure
 
-### Rule
+- `queries` — contains queries, with the following subfolders: handlers and impl
+- `commands` — contains commands, with the following subfolders: handlers and impl
+- `controllers` — contains controllers.
+- `interfaces` — contains shared types and interfaces. Do not define types directly inside controllers, queries, commands, handlers, or events.
+- `helpers` — contains reusable helpers used across the module.
+- `dto` — contains DTOs.
+- `entities` — contains entities.
 
-Do not use another module's repository within a module; instead, create a query or command in the corresponding module and use it in the module that requires it.
+### Rules
+
+Do not access another module's repository directly from within a module. Instead, create a query or command in the module that owns the repository, then use that query or command from the module that requires the data or operation.
+
+Refer to the existing codebase for:
+
+- Project structure
+- Naming conventions
+- Formatting and spacing
+- CQRS implementation patterns
+- Code quality standards
+
+Keep implementations simple and practical. Avoid unnecessary abstractions, overengineering, and unrealistic edge cases. Handle edge cases that are reasonably expected in the application's actual usage.

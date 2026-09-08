@@ -1,10 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { AbstractController } from '@/shared/abstracts';
 import { HasRoles } from '@/modules/auth/decorators';
 import { Roles } from '@/modules/auth/enums';
-import { CreateProgram, DeleteProgram, UpdateProgram } from '../commands';
+import { AbstractController } from '@/shared/abstracts';
+import { createDiskUploadOptions } from '@/shared/helpers';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateProgram, DeleteProgram, UpdateProgram, UploadProgramLogo } from '../commands';
 import { CreateProgramDto, UpdateProgramDto } from '../dto';
-import { Program } from '../entities/program.entity';
+import { Program } from '../entities';
 import { IFilterPrograms } from '../interfaces';
 import { FindProgramById, FindPrograms } from '../queries';
 
@@ -14,6 +27,13 @@ export class ProgramsController extends AbstractController {
   @HasRoles([Roles.STAFF])
   create(@Body() dto: CreateProgramDto): Promise<Program> {
     return this.commandHandler.execute(new CreateProgram(dto));
+  }
+
+  @Post(':id/logo')
+  @HasRoles([Roles.STAFF])
+  @UseInterceptors(FileInterceptor('logo', createDiskUploadOptions('./uploads/programs')))
+  uploadLogo(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<Program> {
+    return this.commandHandler.execute(new UploadProgramLogo(id, file));
   }
 
   @Get()

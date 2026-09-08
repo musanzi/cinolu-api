@@ -1,6 +1,5 @@
 import { AbstractEntity } from '@/shared/abstracts';
-import { Column, Entity, OneToMany } from 'typeorm';
-import { Program } from '@/modules/programs/entities/program.entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class Portfolio extends AbstractEntity {
@@ -11,11 +10,8 @@ export class Portfolio extends AbstractEntity {
   slug: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   logo?: string;
-
-  @OneToMany(() => Program, (program) => program.portfolio)
-  programs: Program[];
 }

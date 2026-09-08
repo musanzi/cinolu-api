@@ -39,6 +39,7 @@ export class FindUsersHandler implements IQueryHandler<FindUsers, [IUserResponse
       this.logger.error(
         `Find users failed options="${JSON.stringify(query.params)}": ${error instanceof Error ? error.message : String(error)}`
       );
+
       throw new BadRequestException('Utilisateurs introuvables');
     }
   }

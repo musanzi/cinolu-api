@@ -1,8 +1,11 @@
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { randomUUID } from 'crypto';
+import { mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 
 export function createDiskUploadOptions(destination: string): MulterOptions {
+  mkdirSync(destination, { recursive: true });
+
   return {
     storage: diskStorage({
       destination,

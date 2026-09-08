@@ -1,29 +1,12 @@
 import { Provider } from '@nestjs/common';
-import {
-  FindActivitiesHandler,
-  FindActivitiesByProgramSlugHandler,
-  FindActivityByIdHandler,
-  FindManagedActivityByIdHandler,
-  FindRecentActivitiesHandler,
-  GetActivityAdminStatisticsHandler
-} from './activity';
-import {
-  CountActivityCategoriesByIdsHandler,
-  FindActivityCategoriesHandler,
-  FindActivityCategoryByIdHandler
-} from './activity-category';
-import { FindActivityTypeByIdHandler, FindActivityTypesHandler } from './activity-type';
+import { FindActivitiesHandler } from './find-activities.handler';
+import { FindActivityByIdHandler } from './find-activity-by-id.handler';
+import { FindPublishedActivityBySlugHandler } from './find-published-activity-by-slug.handler';
+import { FindRecentActivitiesHandler } from './find-recent-activities.handler';
 
 export const QueryHandlers: Provider[] = [
   FindActivitiesHandler,
-  FindActivitiesByProgramSlugHandler,
   FindActivityByIdHandler,
-  FindManagedActivityByIdHandler,
-  FindRecentActivitiesHandler,
-  CountActivityCategoriesByIdsHandler,
-  FindActivityCategoriesHandler,
-  FindActivityCategoryByIdHandler,
-  FindActivityTypesHandler,
-  FindActivityTypeByIdHandler,
-  GetActivityAdminStatisticsHandler
+  FindPublishedActivityBySlugHandler,
+  FindRecentActivitiesHandler
 ];

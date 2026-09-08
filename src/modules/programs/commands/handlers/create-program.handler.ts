@@ -1,15 +1,16 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { FindPortfolioById } from '@/modules/portfolios/queries';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
-import { FindPortfolioById } from '@/modules/portfolios/queries';
-import { CountUsersByIds } from '@/modules/users/queries';
-import { Program } from '../../entities/program.entity';
-import { mapProgramManagers } from '../../helpers';
+import { Repository } from 'typeorm';
+import { Program } from '../../entities';
+import { FindProgramById } from '../../queries';
 import { CreateProgram } from '../impl';
 
 @CommandHandler(CreateProgram)
 export class CreateProgramHandler implements ICommandHandler<CreateProgram, Program> {
+  private readonly logger = new Logger(CreateProgramHandler.name);
+
   constructor(
     @InjectRepository(Program)
     private readonly repository: Repository<Program>,
@@ -17,33 +18,24 @@ export class CreateProgramHandler implements ICommandHandler<CreateProgram, Prog
   ) {}
 
   async execute(command: CreateProgram): Promise<Program> {
-    const { portfolioId, programManagerIds, ...programFields } = command.createProgramDto;
-
-    await this.queryBus.execute(new FindPortfolioById(portfolioId));
-
-    if (programManagerIds?.length) {
-      const count = await this.queryBus.execute(new CountUsersByIds(programManagerIds));
-
-      if (count !== new Set(programManagerIds).size)
-        throw new BadRequestException('Un ou plusieurs gestionnaires sont introuvables');
-    }
-
     try {
+      const { portfolioId, managers, ...fields } = command.createProgramDto;
+
+      await this.queryBus.execute(new FindPortfolioById(portfolioId));
+
       const program = this.repository.create({
-        ...programFields,
+        ...fields,
         portfolio: { id: portfolioId },
-        programManagers: mapProgramManagers(programManagerIds)
+        managers: managers?.map((id) => ({ id }))
       });
 
-      return await this.repository.save(program);
-    } catch (error) {
-      if (
-        error instanceof QueryFailedError &&
-        (error as QueryFailedError & { driverError?: { code?: string } }).driverError?.code === '23505'
-      ) {
-        throw new ConflictException('Un programme avec ce nom existe déjà');
-      }
+      const created = await this.repository.save(program);
 
+      return await this.queryBus.execute(new FindProgramById(created.id));
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+
+      this.logger.error(`Create program failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new BadRequestException('Création du programme impossible');
     }
   }

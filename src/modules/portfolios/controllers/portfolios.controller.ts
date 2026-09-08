@@ -1,10 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { AbstractController } from '@/shared/abstracts';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { HasRoles } from '@/modules/auth/decorators';
 import { Roles } from '@/modules/auth/enums';
-import { CreatePortfolio, DeletePortfolio, UpdatePortfolio } from '../commands';
+import { AbstractController } from '@/shared/abstracts';
+import { createDiskUploadOptions } from '@/shared/helpers';
+import { CreatePortfolio, DeletePortfolio, UpdatePortfolio, UploadPortfolioLogo } from '../commands';
 import { CreatePortfolioDto, UpdatePortfolioDto } from '../dto';
-import { Portfolio } from '../entities/portfolio.entity';
+import { Portfolio } from '../entities';
 import { IFilterPortfolios } from '../interfaces';
 import { FindPortfolioById, FindPortfolios } from '../queries';
 
@@ -14,6 +27,13 @@ export class PortfoliosController extends AbstractController {
   @HasRoles([Roles.STAFF])
   create(@Body() dto: CreatePortfolioDto): Promise<Portfolio> {
     return this.commandHandler.execute(new CreatePortfolio(dto));
+  }
+
+  @Post(':id/logo')
+  @HasRoles([Roles.STAFF])
+  @UseInterceptors(FileInterceptor('logo', createDiskUploadOptions('./uploads/portfolios')))
+  uploadLogo(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<Portfolio> {
+    return this.commandHandler.execute(new UploadPortfolioLogo(id, file));
   }
 
   @Get()

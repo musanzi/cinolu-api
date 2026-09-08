@@ -1,26 +1,12 @@
-import {
-  FindMyVenturesHandler,
-  FindPublishedVentureBySlugHandler,
-  FindPublishedVenturesHandler,
-  FindVentureByIdHandler,
-  FindVenturesHandler,
-  GetVentureAdminStatisticsHandler
-} from './ventures';
 import { Provider } from '@nestjs/common';
-import {
-  CountVentureCategoriesByIdsHandler,
-  FindVentureCategoriesHandler,
-  FindVentureCategoryByIdHandler
-} from './venture-category';
+import { FindMyVenturesHandler } from './find-my-ventures.handler';
+import { FindOwnedVentureByIdHandler } from './find-owned-venture-by-id.handler';
+import { FindVentureByIdHandler } from './find-venture-by-id.handler';
+import { FindVenturesHandler } from './find-ventures.handler';
 
 export const QueryHandlers: Provider[] = [
-  CountVentureCategoriesByIdsHandler,
-  FindVentureCategoriesHandler,
-  FindVentureCategoryByIdHandler,
-  FindMyVenturesHandler,
-  FindPublishedVentureBySlugHandler,
-  FindPublishedVenturesHandler,
   FindVentureByIdHandler,
-  FindVenturesHandler,
-  GetVentureAdminStatisticsHandler
+  FindOwnedVentureByIdHandler,
+  FindMyVenturesHandler,
+  FindVenturesHandler
 ];

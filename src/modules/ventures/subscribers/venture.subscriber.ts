@@ -13,8 +13,7 @@ export class VentureSubscriber implements EntitySubscriberInterface<Venture> {
   }
 
   beforeUpdate(event: UpdateEvent<Venture>): void {
-    if (!event.entity?.name) return;
-    event.entity.slug = this.createSlug(event.entity.name);
+    if (event.entity?.name) event.entity.slug = this.createSlug(event.entity.name);
   }
 
   private createSlug(name: string): string {

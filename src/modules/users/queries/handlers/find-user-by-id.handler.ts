@@ -27,6 +27,7 @@ export class FindUserByIdHandler implements IQueryHandler<FindUserById, IUserRes
       this.logger.error(
         `Find user by id failed id="${query.id}": ${error instanceof Error ? error.message : String(error)}`
       );
+
       throw new NotFoundException('Utilisateur introuvable');
     }
   }

@@ -17,7 +17,7 @@ export class FindOrCreateUserHandler implements ICommandHandler<FindOrCreateUser
   ) {}
 
   async execute(command: FindOrCreateUser): Promise<IUserResponse> {
-    const { email, name, password, avatar, socialLinks, roles } = command.createUserDto;
+    const { email, avatar, roles } = command.createUserDto;
 
     try {
       const existingUser = await this.repository.findOne({
@@ -28,11 +28,8 @@ export class FindOrCreateUserHandler implements ICommandHandler<FindOrCreateUser
       if (existingUser) {
         return this.commandBus.execute(
           new UpdateUser(existingUser.id, {
-            email,
-            name,
-            password,
+            ...command.createUserDto,
             avatar: existingUser.avatar ? undefined : avatar,
-            socialLinks,
             roles
           })
         );

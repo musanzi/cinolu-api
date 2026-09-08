@@ -1,18 +1,12 @@
+import { User } from '@/modules/users/entities';
+import { Category } from '@/modules/categories/entities';
+import { Type } from '@/modules/types/entities';
 import { AbstractEntity } from '@/shared/abstracts';
-import { Program } from '@/modules/programs/entities/program.entity';
-import { ActivityParticipation } from '@/modules/participations/entities/activity-participation.entity';
-import { ActivityReview } from '@/modules/reviews/entities/activity-review.entity';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
-import { FormResponses } from '../interfaces';
-import { ActivityType } from './activity-type.entity';
-import { ActivityCategory } from './activity-category.entity';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { ActivityForm } from '../interfaces';
 
 @Entity()
 export class Activity extends AbstractEntity {
-  @ManyToOne(() => Program, (program) => program.activities, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  program: Program;
-
   @Column({ type: 'varchar', length: 150 })
   name: string;
 
@@ -20,15 +14,7 @@ export class Activity extends AbstractEntity {
   slug: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
-
-  @ManyToOne(() => ActivityType, (type) => type.activities, { onDelete: 'RESTRICT' })
-  @JoinColumn()
-  type: ActivityType;
-
-  @ManyToMany(() => ActivityCategory, (category) => category.activities)
-  @JoinTable({ name: 'activity_categories' })
-  categories: ActivityCategory[];
+  description?: string;
 
   @Column({ type: 'timestamptz' })
   startDate: Date;
@@ -37,14 +23,26 @@ export class Activity extends AbstractEntity {
   endDate: Date;
 
   @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
-  participationForm: FormResponses;
+  participationForm: ActivityForm;
+
+  @Column({ type: 'boolean', default: false })
+  isPublished: boolean;
 
   @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
-  reviewForm: FormResponses;
+  reviewForm: ActivityForm;
 
-  @OneToMany(() => ActivityParticipation, (participation) => participation.activity)
-  participations: ActivityParticipation[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  cover?: string;
 
-  @OneToMany(() => ActivityReview, (review) => review.activity)
-  reviews: ActivityReview[];
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'activity_mentors' })
+  mentors: User[];
+
+  @ManyToMany(() => Type, (type) => type.activities)
+  @JoinTable({ name: 'activity_activity_types' })
+  types: Type[];
+
+  @ManyToMany(() => Category, (category) => category.activities)
+  @JoinTable({ name: 'activity_categories' })
+  categories: Category[];
 }

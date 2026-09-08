@@ -1,22 +1,12 @@
-import {
-  CreateVentureHandler,
-  DeleteVentureHandler,
-  UpdateVentureHandler,
-  UpdateVentureStatusHandler
-} from './ventures';
 import { Provider } from '@nestjs/common';
-import {
-  CreateVentureCategoryHandler,
-  DeleteVentureCategoryHandler,
-  UpdateVentureCategoryHandler
-} from './venture-category';
+import { CreateVentureHandler } from './create-venture.handler';
+import { DeleteVentureHandler } from './delete-venture.handler';
+import { UpdateVentureHandler } from './update-venture.handler';
+import { UploadVentureImageHandler } from './upload-venture-image.handler';
 
 export const CommandHandlers: Provider[] = [
-  CreateVentureCategoryHandler,
-  DeleteVentureCategoryHandler,
-  UpdateVentureCategoryHandler,
   CreateVentureHandler,
-  DeleteVentureHandler,
   UpdateVentureHandler,
-  UpdateVentureStatusHandler
+  DeleteVentureHandler,
+  UploadVentureImageHandler
 ];

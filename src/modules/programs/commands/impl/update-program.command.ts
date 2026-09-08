@@ -1,6 +1,6 @@
 import { Command } from '@nestjs/cqrs';
 import { UpdateProgramDto } from '../../dto';
-import { Program } from '../../entities/program.entity';
+import { Program } from '../../entities';
 
 export class UpdateProgram extends Command<Program> {
   constructor(

@@ -1,37 +1,40 @@
-import { User } from '@/modules/users/entities/user.entity';
+import { Sector } from '@/modules/sectors/entities';
+import { User } from '@/modules/users/entities';
 import { AbstractEntity } from '@/shared/abstracts';
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
-import { VentureLinks, VentureStatus } from '../interfaces';
-import { VentureCategory } from './venture-category.entity';
+import { VentureSocials, VentureStage, VentureStatus } from '../interfaces';
 
 @Entity()
 export class Venture extends AbstractEntity {
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  owner: User;
-
   @Column({ type: 'varchar', length: 150 })
   name: string;
-
-  @ManyToMany(() => VentureCategory, (category) => category.ventures)
-  @JoinTable({ name: 'venture_categories' })
-  categories: VentureCategory[];
 
   @Column({ type: 'varchar', length: 180, unique: true })
   slug: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  pitch: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  logo?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  cover?: string;
 
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  logo?: string;
-
   @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
-  links: VentureLinks;
+  socials: VentureSocials;
 
-  @Column({ type: 'enum', enum: VentureStatus, default: VentureStatus.DRAFT })
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn()
+  owner: User;
+
+  @Column({ type: 'enum', enum: VentureStage })
+  stage: VentureStage;
+
+  @Column({ type: 'enum', enum: VentureStatus, default: VentureStatus.PENDING })
   status: VentureStatus;
+
+  @ManyToMany(() => Sector)
+  @JoinTable({ name: 'venture_sectors' })
+  sectors: Sector[];
 }
