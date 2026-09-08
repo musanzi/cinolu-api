@@ -39,13 +39,11 @@ export class UsersController extends AbstractController {
   }
 
   @Get('staff')
-  @HasRoles([Roles.STAFF])
   findStaff(): Promise<IUserResponse[]> {
     return this.queryHandler.execute(new FindStaff());
   }
 
   @Get('mentors')
-  @HasRoles([Roles.STAFF])
   findMentors(): Promise<IUserResponse[]> {
     return this.queryHandler.execute(new FindMentors());
   }
