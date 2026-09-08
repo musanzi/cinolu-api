@@ -22,7 +22,7 @@ import { Roles } from '@/modules/auth/enums';
 import { createDiskUploadOptions } from '@/shared/helpers';
 import { Response } from 'express';
 import { CreateUser, DeleteUser, ImportUsersCsv, UpdateUser, UploadUserAvatar } from '../commands';
-import { ExportUsersCsv, FindUserByEmail, FindUsers } from '../queries';
+import { ExportUsersCsv, FindMentors, FindStaff, FindUserByEmail, FindUsers } from '../queries';
 
 @Controller('users')
 export class UsersController extends AbstractController {
@@ -36,6 +36,18 @@ export class UsersController extends AbstractController {
   @HasRoles([Roles.STAFF])
   findAll(@Query() query: IFilterUsers): Promise<[IUserResponse[], number]> {
     return this.queryHandler.execute(new FindUsers(query));
+  }
+
+  @Get('staff')
+  @HasRoles([Roles.STAFF])
+  findStaff(): Promise<IUserResponse[]> {
+    return this.queryHandler.execute(new FindStaff());
+  }
+
+  @Get('mentors')
+  @HasRoles([Roles.STAFF])
+  findMentors(): Promise<IUserResponse[]> {
+    return this.queryHandler.execute(new FindMentors());
   }
 
   @Post('import/csv')
