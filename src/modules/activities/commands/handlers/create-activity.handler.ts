@@ -1,4 +1,5 @@
-import { BadRequestException, Logger } from '@nestjs/common';
+import { FindProgramById } from '@/modules/programs/queries';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,12 +18,15 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
   ) {}
 
   async execute(command: CreateActivity): Promise<Activity> {
-    const { mentorIds, typeIds, categoryIds, ...fields } = command.createActivityDto;
-
     try {
+      const { programId, mentorIds, typeIds, categoryIds, ...fields } = command.createActivityDto;
+
+      await this.queryBus.execute(new FindProgramById(programId));
+
       const created = await this.repository.save(
         this.repository.create({
           ...fields,
+          program: { id: programId },
           mentors: mentorIds?.map((id) => ({ id })),
           types: typeIds?.map((id) => ({ id })),
           categories: categoryIds?.map((id) => ({ id }))
@@ -30,7 +34,7 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
       );
       return await this.queryBus.execute(new FindActivityById(created.id));
     } catch (error) {
-      if (error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
 
       this.logger.error(`Create activity failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new BadRequestException("Création de l'activité impossible");

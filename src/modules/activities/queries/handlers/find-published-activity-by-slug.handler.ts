@@ -18,7 +18,7 @@ export class FindPublishedActivityBySlugHandler implements IQueryHandler<FindPub
     try {
       return await this.repository.findOneOrFail({
         where: { slug: query.slug, isPublished: true },
-        relations: ['mentors', 'types', 'categories']
+        relations: ['program', 'mentors', 'types', 'categories']
       });
     } catch (error) {
       this.logger.error(

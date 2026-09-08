@@ -1,8 +1,9 @@
 import { User } from '@/modules/users/entities';
 import { Category } from '@/modules/categories/entities';
+import { Program } from '@/modules/programs/entities';
 import { Type } from '@/modules/types/entities';
 import { AbstractEntity } from '@/shared/abstracts';
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { ActivityForm } from '../interfaces';
 
 @Entity()
@@ -33,6 +34,10 @@ export class Activity extends AbstractEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   cover?: string;
+
+  @ManyToOne(() => Program, (program) => program.activities, { nullable: false, onDelete: 'CASCADE' })
+  @JoinColumn()
+  program: Program;
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'activity_mentors' })

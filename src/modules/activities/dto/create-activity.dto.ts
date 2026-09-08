@@ -39,6 +39,9 @@ export class CreateActivityDto {
   @IsObject()
   reviewForm: ActivityForm;
 
+  @IsUUID('4')
+  programId: string;
+
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })

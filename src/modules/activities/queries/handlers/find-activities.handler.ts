@@ -20,6 +20,7 @@ export class FindActivitiesHandler implements IQueryHandler<FindActivities, [Act
       const { pageNumber, limitNumber } = parsePaginationParams(query.params);
       const builder = this.repository
         .createQueryBuilder('activity')
+        .leftJoinAndSelect('activity.program', 'program')
         .leftJoinAndSelect('activity.mentors', 'mentor')
         .leftJoinAndSelect('activity.types', 'type')
         .leftJoinAndSelect('activity.categories', 'category')

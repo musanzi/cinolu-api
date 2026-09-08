@@ -18,7 +18,7 @@ export class FindActivityByIdHandler implements IQueryHandler<FindActivityById, 
     try {
       return await this.repository.findOneOrFail({
         where: { id: query.id },
-        relations: ['mentors', 'types', 'categories']
+        relations: ['program', 'mentors', 'types', 'categories']
       });
     } catch (error) {
       this.logger.error(

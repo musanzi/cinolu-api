@@ -1,7 +1,8 @@
+import { Activity } from '@/modules/activities/entities';
 import { Portfolio } from '@/modules/portfolios/entities';
 import { User } from '@/modules/users/entities';
 import { AbstractEntity } from '@/shared/abstracts';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class Program extends AbstractEntity {
@@ -24,4 +25,7 @@ export class Program extends AbstractEntity {
   @ManyToMany(() => User)
   @JoinTable({ name: 'program_managers' })
   managers: User[];
+
+  @OneToMany(() => Activity, (activity) => activity.program)
+  activities: Activity[];
 }

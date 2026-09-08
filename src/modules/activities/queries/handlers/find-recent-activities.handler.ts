@@ -18,6 +18,7 @@ export class FindRecentActivitiesHandler implements IQueryHandler<FindRecentActi
     try {
       return await this.repository
         .createQueryBuilder('activity')
+        .leftJoinAndSelect('activity.program', 'program')
         .leftJoinAndSelect('activity.mentors', 'mentor')
         .leftJoinAndSelect('activity.types', 'type')
         .leftJoinAndSelect('activity.categories', 'category')
