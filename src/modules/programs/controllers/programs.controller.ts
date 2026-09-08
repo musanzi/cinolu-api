@@ -19,7 +19,7 @@ import { CreateProgram, DeleteProgram, UpdateProgram, UploadProgramLogo } from '
 import { CreateProgramDto, UpdateProgramDto } from '../dto';
 import { Program } from '../entities';
 import { IFilterPrograms } from '../interfaces';
-import { FindProgramById, FindPrograms } from '../queries';
+import { FindProgramById, FindPrograms, FindProgramsByPortfolioSlug } from '../queries';
 
 @Controller('programs')
 export class ProgramsController extends AbstractController {
@@ -39,6 +39,11 @@ export class ProgramsController extends AbstractController {
   @Get()
   findAll(@Query() query: IFilterPrograms): Promise<[Program[], number]> {
     return this.queryHandler.execute(new FindPrograms(query));
+  }
+
+  @Get('portfolio/:slug')
+  findByPortfolioSlug(@Param('slug') slug: string): Promise<Program[]> {
+    return this.queryHandler.execute(new FindProgramsByPortfolioSlug(slug));
   }
 
   @Get(':id')
