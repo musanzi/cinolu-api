@@ -28,4 +28,4 @@ Refer to the existing codebase for:
 - CQRS implementation patterns
 - Code quality standards
 
-Keep implementations simple and practical. Avoid unnecessary abstractions, overengineering, and unrealistic edge cases. Handle edge cases that are reasonably expected in the application's actual usage.
+Keep implementations simple and practical. Avoid unnecessary abstractions, overengineering, and unrealistic edge cases. Handle edge cases that are reasonably expected in the application's actual usage and don't generate migrations.

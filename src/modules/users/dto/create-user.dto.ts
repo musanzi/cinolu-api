@@ -17,6 +17,10 @@ export class CreateUserDto {
   avatar?: string;
 
   @IsOptional()
+  @IsString()
+  jobTitle?: string;
+
+  @IsOptional()
   @IsObject()
   socialLinks?: UserSocialLinks;
 

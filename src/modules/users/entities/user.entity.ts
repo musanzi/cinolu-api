@@ -15,6 +15,9 @@ export class User extends AbstractEntity {
   @Column({ nullable: true })
   avatar: string;
 
+  @Column({ nullable: true })
+  jobTitle?: string;
+
   @Column({ nullable: true, select: false })
   password: string;
 
