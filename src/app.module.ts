@@ -23,6 +23,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TypesModule } from './modules/types/types.module';
 import { ParticipationsModule } from './modules/participations/participations.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     TypesModule,
     ParticipationsModule,
     ReviewsModule,
+    StatsModule,
     RolesModule
   ],
   providers: [
