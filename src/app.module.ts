@@ -21,6 +21,7 @@ import { VenturesModule } from './modules/ventures/ventures.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TypesModule } from './modules/types/types.module';
+import { ParticipationsModule } from './modules/participations/participations.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { TypesModule } from './modules/types/types.module';
     ActivitiesModule,
     CategoriesModule,
     TypesModule,
+    ParticipationsModule,
     RolesModule
   ],
   providers: [

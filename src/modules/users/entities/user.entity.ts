@@ -3,6 +3,7 @@ import { Role } from '../../roles/entities/role.entity';
 import { AbstractEntity } from '@/shared/abstracts';
 import { UserSocialLinks } from '../interfaces';
 import { Venture } from '@/modules/ventures/entities';
+import { Participation } from '@/modules/participations/entities';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -33,4 +34,7 @@ export class User extends AbstractEntity {
 
   @OneToMany(() => Venture, (venture) => venture.owner)
   ventures: Venture[];
+
+  @OneToMany(() => Participation, (participation) => participation.participant)
+  participations: Participation[];
 }

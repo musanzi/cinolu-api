@@ -1,9 +1,10 @@
 import { User } from '@/modules/users/entities';
 import { Category } from '@/modules/categories/entities';
+import { Participation } from '@/modules/participations/entities';
 import { Program } from '@/modules/programs/entities';
 import { Type } from '@/modules/types/entities';
 import { AbstractEntity } from '@/shared/abstracts';
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { ActivityForm } from '../interfaces';
 
 @Entity()
@@ -50,4 +51,7 @@ export class Activity extends AbstractEntity {
   @ManyToMany(() => Category, (category) => category.activities)
   @JoinTable({ name: 'activity_categories' })
   categories: Category[];
+
+  @OneToMany(() => Participation, (participation) => participation.activity)
+  participations: Participation[];
 }
