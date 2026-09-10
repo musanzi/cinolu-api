@@ -1,7 +1,7 @@
-import { IsStringRecord } from '../helpers';
+import { IsJSON } from 'class-validator';
 import { ParticipationData } from '../interfaces';
 
 export class UpdateParticipationDto {
-  @IsStringRecord()
+  @IsJSON()
   data: ParticipationData;
 }

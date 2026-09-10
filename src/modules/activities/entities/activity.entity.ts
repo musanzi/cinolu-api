@@ -2,6 +2,7 @@ import { User } from '@/modules/users/entities';
 import { Category } from '@/modules/categories/entities';
 import { Participation } from '@/modules/participations/entities';
 import { Program } from '@/modules/programs/entities';
+import { Review } from '@/modules/reviews/entities';
 import { Type } from '@/modules/types/entities';
 import { AbstractEntity } from '@/shared/abstracts';
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
@@ -54,4 +55,7 @@ export class Activity extends AbstractEntity {
 
   @OneToMany(() => Participation, (participation) => participation.activity)
   participations: Participation[];
+
+  @OneToMany(() => Review, (review) => review.activity)
+  reviews: Review[];
 }

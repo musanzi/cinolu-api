@@ -4,6 +4,7 @@ import { AbstractEntity } from '@/shared/abstracts';
 import { UserSocialLinks } from '../interfaces';
 import { Venture } from '@/modules/ventures/entities';
 import { Participation } from '@/modules/participations/entities';
+import { Review } from '@/modules/reviews/entities';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -37,4 +38,7 @@ export class User extends AbstractEntity {
 
   @OneToMany(() => Participation, (participation) => participation.participant)
   participations: Participation[];
+
+  @OneToMany(() => Review, (review) => review.reviewer)
+  reviews: Review[];
 }
