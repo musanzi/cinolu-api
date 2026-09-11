@@ -21,7 +21,7 @@ export class FindProgramsHandler implements IQueryHandler<FindPrograms, [Program
       const builder = this.repository
         .createQueryBuilder('program')
         .leftJoinAndSelect('program.portfolio', 'portfolio')
-        .leftJoinAndSelect('program.programManagers', 'manager')
+        .leftJoinAndSelect('program.managers', 'managers')
         .orderBy('program.updatedAt', 'DESC')
         .distinct(true);
 
@@ -30,7 +30,7 @@ export class FindProgramsHandler implements IQueryHandler<FindPrograms, [Program
         builder.andWhere('program.portfolioId = :portfolioId', { portfolioId: query.params.portfolioId });
       }
       if (query.params.managerId) {
-        builder.innerJoin('program.programManagers', 'filteredManager', 'filteredManager.id = :managerId', {
+        builder.innerJoin('program.managers', 'filteredManager', 'filteredManager.id = :managerId', {
           managerId: query.params.managerId
         });
       }
