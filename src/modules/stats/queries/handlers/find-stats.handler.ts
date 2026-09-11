@@ -10,13 +10,7 @@ import { IMonthlyCount, INamedCount } from '@/shared/interfaces';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { DataSource, Repository } from 'typeorm';
-import {
-  createDateRange,
-  fillMonthlyChart,
-  fillMonthlySeries,
-  monthOverMonth,
-  sumMonthlyCounts
-} from '../../helpers';
+import { createDateRange, fillMonthlyChart, monthOverMonth, sumMonthlyCounts } from '../../helpers';
 import {
   IActivityLifecycleRow,
   IActivityStatistics,
@@ -69,17 +63,15 @@ export class FindStatsHandler implements IQueryHandler<FindStats, IStatsDashboar
     const range = createDateRange(query.months, generatedAt);
 
     try {
-      const [users, programs, activities, participations, reviews, ventures] = await Promise.all([
+      const [users, programs, activities, participations, ventures] = await Promise.all([
         this.getUserStatistics(range.from, range.to),
         this.getProgramStatistics(),
         this.getActivityStatistics(generatedAt),
         this.getParticipationStatistics(range.from, range.to),
-        this.getReviewStatistics(range.from, range.to),
         this.getVentureStatistics(range.from, range.to)
       ]);
 
       const userRegistrations = fillMonthlyChart(range.months, users.registrations);
-      const reviewTrend = fillMonthlyChart(range.months, reviews.trend);
       const participationTrend = fillMonthlyChart(range.months, sumMonthlyCounts(participations.trend));
       const ventureTrend = fillMonthlyChart(range.months, sumMonthlyCounts(ventures.trend));
       const participationStatuses = new Map(participations.byStatus.map((item) => [item.name, item.total]));
@@ -114,26 +106,6 @@ export class FindStatsHandler implements IQueryHandler<FindStats, IStatsDashboar
         ],
         charts: {
           userRegistrations,
-          participationTrend: Object.values(ParticipationStatus).map((status) =>
-            fillMonthlySeries(
-              participationLabels[status],
-              range.months,
-              participations.trend.filter((item) => item.status === status)
-            )
-          ),
-          reviewTrend,
-          ventureTrend: Object.values(VentureStatus).map((status) =>
-            fillMonthlySeries(
-              ventureLabels[status],
-              range.months,
-              ventures.trend.filter((item) => item.status === status)
-            )
-          ),
-          activityLifecycle: [
-            { name: 'À venir', value: activities.lifecycle.upcoming },
-            { name: 'En cours', value: activities.lifecycle.ongoing },
-            { name: 'Terminées', value: activities.lifecycle.completed }
-          ],
           participationStatuses: Object.values(ParticipationStatus).map((status) => ({
             name: participationLabels[status],
             value: participationStatuses.get(status) ?? 0
@@ -143,8 +115,7 @@ export class FindStatsHandler implements IQueryHandler<FindStats, IStatsDashboar
             value: ventureStatuses.get(status) ?? 0
           })),
           activitiesByType: activities.byType.map((item) => ({ name: item.name, value: item.total })),
-          programsByPortfolio: programs.byPortfolio.map((item) => ({ name: item.name, value: item.total })),
-          usersByRole: users.roles.map((item) => ({ name: item.name, value: item.total }))
+          programsByPortfolio: programs.byPortfolio.map((item) => ({ name: item.name, value: item.total }))
         }
       };
     } catch (error) {
@@ -228,11 +199,6 @@ export class FindStatsHandler implements IQueryHandler<FindStats, IStatsDashboar
 
     return {
       total: Number(lifecycle?.total ?? 0),
-      lifecycle: {
-        upcoming: Number(lifecycle?.upcoming ?? 0),
-        ongoing: Number(lifecycle?.ongoing ?? 0),
-        completed: Number(lifecycle?.completed ?? 0)
-      },
       byType: this.toNamedCounts(byType)
     };
   }

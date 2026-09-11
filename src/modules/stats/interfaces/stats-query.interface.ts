@@ -30,11 +30,6 @@ export interface IActivityLifecycleRow extends ICountRow {
 
 export interface IActivityStatistics {
   total: number;
-  lifecycle: {
-    upcoming: number;
-    ongoing: number;
-    completed: number;
-  };
   byType: INamedCount[];
 }
 

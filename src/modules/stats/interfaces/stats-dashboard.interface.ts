@@ -31,15 +31,10 @@ export interface IDateRange {
 
 export interface IStatsCharts {
   userRegistrations: IChartPoint[];
-  participationTrend: IChartSeries[];
-  reviewTrend: IChartPoint[];
-  ventureTrend: IChartSeries[];
-  activityLifecycle: IChartPoint[];
   participationStatuses: IChartPoint[];
   ventureStatuses: IChartPoint[];
   activitiesByType: IChartPoint[];
   programsByPortfolio: IChartPoint[];
-  usersByRole: IChartPoint[];
 }
 
 export interface IStatsDashboard {
