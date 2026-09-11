@@ -16,8 +16,8 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateVenture, DeleteVenture, UpdateVenture, UploadVentureImage } from '../commands';
-import { CreateVentureDto, UpdateVentureDto } from '../dto';
+import { CreateVenture, DeleteVenture, UpdateVenture, UpdateVentureStatus, UploadVentureImage } from '../commands';
+import { CreateVentureDto, UpdateVentureDto, UpdateVentureStatusDto } from '../dto';
 import { Venture } from '../entities';
 import { IFilterVentures } from '../interfaces';
 import { FindMyVentures, FindOwnedVentureById, FindVentureById, FindVentures } from '../queries';
@@ -49,6 +49,12 @@ export class VenturesController extends AbstractController {
   @HasRoles([Roles.STAFF])
   findOneForStaff(@Param('id') id: string): Promise<Venture> {
     return this.queryHandler.execute(new FindVentureById(id));
+  }
+
+  @Patch(':id/status')
+  @HasRoles([Roles.STAFF])
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateVentureStatusDto): Promise<Venture> {
+    return this.commandHandler.execute(new UpdateVentureStatus(id, dto));
   }
 
   @Post(':id/logo')

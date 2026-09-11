@@ -1,10 +1,8 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler, QueryBus } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Venture } from '../../entities';
-import { VentureStatusChangedEvent } from '../../events';
-import { VentureStatus } from '../../interfaces';
 import { FindOwnedVentureById, FindVentureById } from '../../queries';
 import { UpdateVenture } from '../impl';
 
@@ -15,8 +13,7 @@ export class UpdateVentureHandler implements ICommandHandler<UpdateVenture, Vent
   constructor(
     @InjectRepository(Venture)
     private readonly repository: Repository<Venture>,
-    private readonly queryBus: QueryBus,
-    private readonly eventBus: EventBus
+    private readonly queryBus: QueryBus
   ) {}
 
   async execute(command: UpdateVenture): Promise<Venture> {
@@ -24,19 +21,13 @@ export class UpdateVentureHandler implements ICommandHandler<UpdateVenture, Vent
     const dto = command.dto;
 
     try {
-      const statusChanged = current.status !== VentureStatus.PENDING;
-
       await this.repository.save({
         ...current,
         ...dto,
         sectors: dto?.sectorIds?.map((id) => ({ id }))
       });
 
-      const venture = await this.queryBus.execute(new FindVentureById(command.id));
-
-      if (statusChanged) this.eventBus.publish(new VentureStatusChangedEvent(venture));
-
-      return venture;
+      return await this.queryBus.execute(new FindVentureById(command.id));
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
 
