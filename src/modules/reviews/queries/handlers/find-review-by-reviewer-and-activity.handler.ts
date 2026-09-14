@@ -21,7 +21,7 @@ export class FindReviewByReviewerAndActivityHandler implements IQueryHandler<
           reviewer: { id: query.reviewerId },
           activity: { id: query.activityId }
         },
-        relations: { reviewer: true, activity: true }
+        relations: ['reviewer', 'activity']
       });
     } catch (error) {
       this.logger.error(
