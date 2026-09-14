@@ -1,4 +1,4 @@
-import { HasRoles } from '@/modules/auth/decorators';
+import { HasRoles, Public } from '@/modules/auth/decorators';
 import { Roles } from '@/modules/auth/enums';
 import { AbstractController } from '@/shared/abstracts';
 import { createDiskUploadOptions } from '@/shared/helpers';
@@ -19,7 +19,7 @@ import { CreateProgram, DeleteProgram, UpdateProgram, UploadProgramLogo } from '
 import { CreateProgramDto, UpdateProgramDto } from '../dto';
 import { Program } from '../entities';
 import { IFilterPrograms } from '../interfaces';
-import { FindProgramById, FindPrograms, FindProgramsByPortfolioSlug } from '../queries';
+import { FindProgramById, FindPrograms, FindRecentPrograms } from '../queries';
 
 @Controller('programs')
 export class ProgramsController extends AbstractController {
@@ -27,6 +27,12 @@ export class ProgramsController extends AbstractController {
   @HasRoles([Roles.STAFF])
   create(@Body() dto: CreateProgramDto): Promise<Program> {
     return this.commandHandler.execute(new CreateProgram(dto));
+  }
+
+  @Get('recent')
+  @Public()
+  findRecent(): Promise<Program[]> {
+    return this.queryHandler.execute(new FindRecentPrograms());
   }
 
   @Post(':id/logo')
@@ -37,13 +43,9 @@ export class ProgramsController extends AbstractController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() query: IFilterPrograms): Promise<[Program[], number]> {
     return this.queryHandler.execute(new FindPrograms(query));
-  }
-
-  @Get('portfolio/:slug')
-  findByPortfolioSlug(@Param('slug') slug: string): Promise<Program[]> {
-    return this.queryHandler.execute(new FindProgramsByPortfolioSlug(slug));
   }
 
   @Get(':id')
