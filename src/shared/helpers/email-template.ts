@@ -71,7 +71,7 @@ export const buildEmailBody = (options: EmailTemplateOptions): EmailContent => {
 
     ${note}
 
-    <p>L'équipe Starter</p>G
+    <p>L'équipe Cinolu</p>
   </body>
 </html>`;
 

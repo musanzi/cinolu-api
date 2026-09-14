@@ -1,6 +1,6 @@
 services:
   api:
-    container_name: starter-api
+    container_name: onestop-api
     build:
       context: .
       target: production
@@ -17,7 +17,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - starter-network
+      - onestop-network
 
   db:
     image: postgres:18-alpine
@@ -36,7 +36,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - starter-network
+      - onestop-network
 
   redis:
     image: redis:8-alpine
@@ -50,7 +50,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - starter-network
+      - onestop-network
 
 volumes:
   postgres_data:
@@ -58,5 +58,5 @@ volumes:
   uploads_data:
 
 networks:
-  starter-network:
+  onestop-network:
     driver: bridge
