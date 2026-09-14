@@ -70,7 +70,7 @@ import { StatsModule } from './modules/stats/stats.module';
           }
         },
         defaults: {
-          from: `Starter Support <${config.get('MAIL_USERNAME')}>`
+          from: `Onestop Support <${config.get('MAIL_USERNAME')}>`
         }
       })
     }),
