@@ -20,7 +20,6 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
   async execute(command: CreateActivity): Promise<Activity> {
     try {
       const { programId, mentorIds, typeIds, categoryIds, ...fields } = command.createActivityDto;
-
       await this.queryBus.execute(new FindProgramById(programId));
 
       const created = await this.repository.save(
@@ -34,8 +33,7 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
       );
       return await this.queryBus.execute(new FindActivityById(created.id));
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
-
+      if (error instanceof NotFoundException) throw error;
       this.logger.error(`Create activity failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new BadRequestException("Création de l'activité impossible");
     }

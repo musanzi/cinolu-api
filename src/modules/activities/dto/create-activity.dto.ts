@@ -1,15 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-  ArrayUnique,
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsObject,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength
-} from 'class-validator';
+import { ArrayUnique, IsArray, IsBoolean, IsDate, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 import { ActivityForm } from '../interfaces';
 
 export class CreateActivityDto {
@@ -29,29 +19,32 @@ export class CreateActivityDto {
   @IsDate()
   endDate: Date;
 
-  @IsObject()
+  @IsOptional()
   participationForm: ActivityForm;
 
   @IsOptional()
   @IsBoolean()
   isPublished?: boolean;
 
-  @IsObject()
+  @IsOptional()
   reviewForm: ActivityForm;
 
   @IsUUID('4')
   programId: string;
 
+  @IsOptional()
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })
   mentorIds: string[];
 
+  @IsOptional()
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })
   typeIds: string[];
 
+  @IsOptional()
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })
