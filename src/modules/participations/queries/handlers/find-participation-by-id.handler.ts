@@ -9,13 +9,16 @@ import { FindParticipationById } from '../impl';
 export class FindParticipationByIdHandler implements IQueryHandler<FindParticipationById, Participation> {
   private readonly logger = new Logger(FindParticipationByIdHandler.name);
 
-  constructor(@InjectRepository(Participation) private readonly repository: Repository<Participation>) {}
+  constructor(
+    @InjectRepository(Participation)
+    private readonly repository: Repository<Participation>
+  ) {}
 
   async execute(query: FindParticipationById): Promise<Participation> {
     try {
       return await this.repository.findOneOrFail({
         where: { id: query.id },
-        relations: { participant: true, activity: true }
+        relations: ['participant', 'activity', 'activity.program']
       });
     } catch (error) {
       this.logger.error(

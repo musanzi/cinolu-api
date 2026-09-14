@@ -21,7 +21,7 @@ export class FindParticipationByParticipantAndActivityHandler implements IQueryH
           participant: { id: query.participantId },
           activity: { id: query.activityId }
         },
-        relations: { participant: true, activity: true }
+        relations: ['participant', 'activity']
       });
     } catch (error) {
       this.logger.error(

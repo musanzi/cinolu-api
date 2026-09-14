@@ -7,12 +7,7 @@ import { CreateParticipation, UpdateParticipation, UpdateParticipationStatus } f
 import { CreateParticipationDto, UpdateParticipationDto, UpdateParticipationStatusDto } from '../dto';
 import { Participation } from '../entities';
 import { IFilterParticipations } from '../interfaces';
-import {
-  FindMyParticipations,
-  FindOwnedParticipationById,
-  FindParticipationById,
-  FindParticipations
-} from '../queries';
+import { FindMyParticipations, FindParticipationById, FindParticipations } from '../queries';
 
 @Controller('participations')
 export class ParticipationsController extends AbstractController {
@@ -29,21 +24,15 @@ export class ParticipationsController extends AbstractController {
     return this.queryHandler.execute(new FindMyParticipations(user.id, query));
   }
 
-  @Get('mine/:id')
-  findOneMine(@CurrentUser() user: IUserResponse, @Param('id') id: string): Promise<Participation> {
-    return this.queryHandler.execute(new FindOwnedParticipationById(id, user.id));
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<Participation> {
+    return this.queryHandler.execute(new FindParticipationById(id));
   }
 
   @Get('staff')
   @HasRoles([Roles.STAFF])
   findForStaff(@Query() query: IFilterParticipations): Promise<[Participation[], number]> {
     return this.queryHandler.execute(new FindParticipations(query));
-  }
-
-  @Get('staff/:id')
-  @HasRoles([Roles.STAFF])
-  findOneForStaff(@Param('id') id: string): Promise<Participation> {
-    return this.queryHandler.execute(new FindParticipationById(id));
   }
 
   @Patch(':id/status')
@@ -53,11 +42,7 @@ export class ParticipationsController extends AbstractController {
   }
 
   @Patch(':id')
-  update(
-    @CurrentUser() user: IUserResponse,
-    @Param('id') id: string,
-    @Body() dto: UpdateParticipationDto
-  ): Promise<Participation> {
-    return this.commandHandler.execute(new UpdateParticipation(user.id, id, dto));
+  update(@Param('id') id: string, @Body() dto: UpdateParticipationDto): Promise<Participation> {
+    return this.commandHandler.execute(new UpdateParticipation(id, dto));
   }
 }

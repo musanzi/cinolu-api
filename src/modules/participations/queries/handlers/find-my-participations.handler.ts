@@ -18,12 +18,14 @@ export class FindMyParticipationsHandler implements IQueryHandler<FindMyParticip
       const builder = this.repository
         .createQueryBuilder('participation')
         .leftJoinAndSelect('participation.activity', 'activity')
+        .leftJoinAndSelect('activity.program', 'program')
         .where('participation.participantId = :participantId', { participantId: query.participantId })
         .orderBy('participation.updatedAt', 'DESC');
 
       if (query.params.activityId) {
         builder.andWhere('activity.id = :activityId', { activityId: query.params.activityId });
       }
+
       if (query.params.status) {
         builder.andWhere('participation.status = :status', { status: query.params.status });
       }
