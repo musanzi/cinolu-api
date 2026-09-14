@@ -21,6 +21,10 @@ export class CreateUserDto {
   jobTitle?: string;
 
   @IsOptional()
+  @IsString()
+  biography?: string;
+
+  @IsOptional()
   @IsObject()
   socialLinks?: UserSocialLinks;
 

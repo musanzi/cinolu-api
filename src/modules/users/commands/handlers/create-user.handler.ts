@@ -32,6 +32,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser, IUserRespo
       const userRoles = roles ? mapRoleIds(roles) : [await this.queryBus.execute(new FindRoleByName('user'))];
       const user = this.repository.create({
         ...command.createUserDto,
+        biography: command.createUserDto?.biography || '',
         password,
         roles: userRoles
       });
