@@ -11,7 +11,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { HasRoles } from '@/modules/auth/decorators';
+import { HasRoles, Public } from '@/modules/auth/decorators';
 import { Roles } from '@/modules/auth/enums';
 import { AbstractController } from '@/shared/abstracts';
 import { createDiskUploadOptions } from '@/shared/helpers';
@@ -37,6 +37,7 @@ export class PortfoliosController extends AbstractController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() query: IFilterPortfolios): Promise<[Portfolio[], number]> {
     return this.queryHandler.execute(new FindPortfolios(query));
   }
