@@ -29,6 +29,12 @@ export class VenturesController extends AbstractController {
     return this.commandHandler.execute(new CreateVenture(user.id, dto));
   }
 
+  @Get('')
+  @HasRoles([Roles.STAFF])
+  findAll(@Query() query: IFilterVentures): Promise<[Venture[], number]> {
+    return this.queryHandler.execute(new FindVentures(query));
+  }
+
   @Get('mine')
   findMyVentures(@CurrentUser() user: IUserResponse, @Query() query: IFilterVentures): Promise<[Venture[], number]> {
     return this.queryHandler.execute(new FindMyVentures(user.id, query));
@@ -37,12 +43,6 @@ export class VenturesController extends AbstractController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Venture> {
     return this.queryHandler.execute(new FindVentureById(id));
-  }
-
-  @Get('staff')
-  @HasRoles([Roles.STAFF])
-  findForStaff(@Query() query: IFilterVentures): Promise<[Venture[], number]> {
-    return this.queryHandler.execute(new FindVentures(query));
   }
 
   @Patch(':id/status')
