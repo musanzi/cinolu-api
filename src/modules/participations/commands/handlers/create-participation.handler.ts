@@ -26,7 +26,7 @@ export class CreateParticipationHandler implements ICommandHandler<CreatePartici
         data: dto.data
       });
 
-      return await this.queryBus.execute<FindParticipationById, Participation>(new FindParticipationById(created.id));
+      return await this.queryBus.execute(new FindParticipationById(created.id));
     } catch (error) {
       this.logger.error(
         `Create participation failed participantId="${participantId}" activityId="${dto.activityId}": ${error instanceof Error ? error.message : String(error)}`

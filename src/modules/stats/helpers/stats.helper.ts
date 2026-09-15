@@ -1,5 +1,4 @@
-import { IMonthlyCount } from '@/shared/interfaces';
-import { IChartPoint, IChartSeries, IDateRange } from '../interfaces';
+import { IChartPoint, IChartSeries, IDateRange, IMonthlyCount } from '../interfaces';
 
 export function createDateRange(monthCount: number, now: Date): IDateRange {
   const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthCount + 1, 1));

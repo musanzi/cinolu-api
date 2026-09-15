@@ -6,26 +6,25 @@ import { Review } from '@/modules/reviews/entities';
 import { User } from '@/modules/users/entities';
 import { Venture } from '@/modules/ventures/entities';
 import { VentureStatus } from '@/modules/ventures/interfaces';
-import { IMonthlyCount, INamedCount } from '@/shared/interfaces';
 import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { DataSource, Repository } from 'typeorm';
 import { createDateRange, fillMonthlyChart, monthOverMonth, sumMonthlyCounts } from '../../helpers';
+
+import { FindStats } from '../impl';
+import { IStatsDashboard, IMonthlyCountRow, IMonthlyCount, INamedCount } from '../../interfaces';
 import {
-  IActivityLifecycleRow,
-  IActivityStatistics,
-  IMonthlyCountRow,
-  IMonthlyStatusCountRow,
-  INamedCountRow,
-  IParticipationStatistics,
-  IProgramStatistics,
-  IReviewStatistics,
-  IStatsDashboard,
-  IStatusCountRow,
   IUserStatistics,
+  INamedCountRow,
+  IProgramStatistics,
+  IActivityStatistics,
+  IActivityLifecycleRow,
+  IParticipationStatistics,
+  IStatusCountRow,
+  IMonthlyStatusCountRow,
+  IReviewStatistics,
   IVentureStatistics
 } from '../../interfaces';
-import { FindStats } from '../impl';
 
 const participationLabels: Record<ParticipationStatus, string> = {
   [ParticipationStatus.PENDING]: 'En attente',

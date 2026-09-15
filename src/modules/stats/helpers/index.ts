@@ -1,1 +1,1 @@
-export * from './stats-dashboard.helper';
+export * from './stats.helper';

@@ -21,9 +21,7 @@ export class UpdateParticipationStatusHandler implements ICommandHandler<UpdateP
 
   async execute(command: UpdateParticipationStatus): Promise<Participation> {
     try {
-      const current = await this.queryBus.execute<FindParticipationById, Participation>(
-        new FindParticipationById(command.id)
-      );
+      const current = await this.queryBus.execute(new FindParticipationById(command.id));
       const statusChanged = current.status !== command.dto.status;
 
       if (statusChanged) {
@@ -31,7 +29,7 @@ export class UpdateParticipationStatusHandler implements ICommandHandler<UpdateP
       }
 
       const participation = statusChanged
-        ? await this.queryBus.execute<FindParticipationById, Participation>(new FindParticipationById(command.id))
+        ? await this.queryBus.execute(new FindParticipationById(command.id))
         : current;
 
       if (statusChanged && participation.status !== ParticipationStatus.PENDING) {

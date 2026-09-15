@@ -10,7 +10,10 @@ import { FindVentures } from '../impl';
 export class FindVenturesHandler implements IQueryHandler<FindVentures, [Venture[], number]> {
   private readonly logger = new Logger(FindVenturesHandler.name);
 
-  constructor(@InjectRepository(Venture) private readonly repository: Repository<Venture>) {}
+  constructor(
+    @InjectRepository(Venture)
+    private readonly repository: Repository<Venture>
+  ) {}
 
   async execute(query: FindVentures): Promise<[Venture[], number]> {
     try {

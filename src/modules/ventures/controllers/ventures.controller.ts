@@ -20,7 +20,7 @@ import { CreateVenture, DeleteVenture, UpdateVenture, UpdateVentureStatus, Uploa
 import { CreateVentureDto, UpdateVentureDto, UpdateVentureStatusDto } from '../dto';
 import { Venture } from '../entities';
 import { IFilterVentures } from '../interfaces';
-import { FindMyVentures, FindOwnedVentureById, FindVentureById, FindVentures } from '../queries';
+import { FindMyVentures, FindVentureById, FindVentures } from '../queries';
 
 @Controller('ventures')
 export class VenturesController extends AbstractController {
@@ -34,21 +34,15 @@ export class VenturesController extends AbstractController {
     return this.queryHandler.execute(new FindMyVentures(user.id, query));
   }
 
-  @Get('mine/:id')
-  findMyVenture(@CurrentUser() user: IUserResponse, @Param('id') id: string): Promise<Venture> {
-    return this.queryHandler.execute(new FindOwnedVentureById(id, user.id));
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<Venture> {
+    return this.queryHandler.execute(new FindVentureById(id));
   }
 
   @Get('staff')
   @HasRoles([Roles.STAFF])
   findForStaff(@Query() query: IFilterVentures): Promise<[Venture[], number]> {
     return this.queryHandler.execute(new FindVentures(query));
-  }
-
-  @Get('staff/:id')
-  @HasRoles([Roles.STAFF])
-  findOneForStaff(@Param('id') id: string): Promise<Venture> {
-    return this.queryHandler.execute(new FindVentureById(id));
   }
 
   @Patch(':id/status')
@@ -59,22 +53,14 @@ export class VenturesController extends AbstractController {
 
   @Post(':id/logo')
   @UseInterceptors(FileInterceptor('logo', createDiskUploadOptions('./uploads/ventures')))
-  uploadLogo(
-    @CurrentUser() user: IUserResponse,
-    @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File
-  ): Promise<Venture> {
-    return this.commandHandler.execute(new UploadVentureImage(user.id, id, 'logo', file));
+  uploadLogo(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<Venture> {
+    return this.commandHandler.execute(new UploadVentureImage(id, 'logo', file));
   }
 
   @Post(':id/cover')
   @UseInterceptors(FileInterceptor('cover', createDiskUploadOptions('./uploads/ventures')))
-  uploadCover(
-    @CurrentUser() user: IUserResponse,
-    @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File
-  ): Promise<Venture> {
-    return this.commandHandler.execute(new UploadVentureImage(user.id, id, 'cover', file));
+  uploadCover(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<Venture> {
+    return this.commandHandler.execute(new UploadVentureImage(id, 'cover', file));
   }
 
   @Patch(':id')

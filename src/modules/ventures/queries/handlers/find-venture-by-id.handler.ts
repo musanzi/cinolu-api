@@ -9,7 +9,10 @@ import { FindVentureById } from '../impl';
 export class FindVentureByIdHandler implements IQueryHandler<FindVentureById, Venture> {
   private readonly logger = new Logger(FindVentureByIdHandler.name);
 
-  constructor(@InjectRepository(Venture) private readonly repository: Repository<Venture>) {}
+  constructor(
+    @InjectRepository(Venture)
+    private readonly repository: Repository<Venture>
+  ) {}
 
   async execute(query: FindVentureById): Promise<Venture> {
     try {

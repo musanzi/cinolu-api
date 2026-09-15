@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Venture } from '../../entities';
-import { FindOwnedVentureById, FindVentureById } from '../../queries';
+import { FindVentureById } from '../../queries';
 import { UpdateVenture } from '../impl';
 
 @CommandHandler(UpdateVenture)
@@ -17,7 +17,7 @@ export class UpdateVentureHandler implements ICommandHandler<UpdateVenture, Vent
   ) {}
 
   async execute(command: UpdateVenture): Promise<Venture> {
-    const current = await this.queryBus.execute(new FindOwnedVentureById(command.id, command.ownerId));
+    const current = await this.queryBus.execute(new FindVentureById(command.id));
     const dto = command.dto;
 
     try {
@@ -29,7 +29,7 @@ export class UpdateVentureHandler implements ICommandHandler<UpdateVenture, Vent
 
       return await this.queryBus.execute(new FindVentureById(command.id));
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException) throw error;
 
       this.logger.error(
         `Update venture failed id="${command.id}": ${error instanceof Error ? error.message : String(error)}`

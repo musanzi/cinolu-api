@@ -1,65 +1,65 @@
-name: OneStop API CI/CD
+# name: OneStop API CI/CD
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-concurrency:
-  group: production-deploy
-  cancel-in-progress: false
+# concurrency:
+#   group: production-deploy
+#   cancel-in-progress: false
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
-jobs:
-  ci:
-    name: Lint and Format
-    runs-on: ubuntu-latest
+# jobs:
+#   ci:
+#     name: Lint and Format
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 11.5.0
+#       - name: Setup pnpm
+#         uses: pnpm/action-setup@v6
+#         with:
+#           version: 11.5.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v6
+#         with:
+#           node-version: 24
+#           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+#       - name: Install dependencies
+#         run: pnpm install --frozen-lockfile
 
-      - name: Lint application
-        run: pnpm lint
+#       - name: Lint application
+#         run: pnpm lint
 
-      - name: Format application
-        run: pnpm format
+#       - name: Format application
+#         run: pnpm format
 
-  deploy:
-    name: Deploy to VPS
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: ci
-    environment: production
+#   deploy:
+#     name: Deploy to VPS
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 20
+#     needs: ci
+#     environment: production
 
-    steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd "${{ secrets.PROJECT_PATH }}"
+#     steps:
+#       - name: Deploy over SSH
+#         uses: appleboy/ssh-action@v1
+#         with:
+#           host: ${{ secrets.SSH_HOST }}
+#           username: ${{ secrets.SSH_USER }}
+#           port: ${{ secrets.SSH_PORT }}
+#           key: ${{ secrets.SSH_KEY }}
+#           script: |
+#             cd "${{ secrets.PROJECT_PATH }}"
 
-            git fetch origin main
-            git reset --hard origin/main
+#             git fetch origin main
+#             git reset --hard origin/main
 
-            docker compose -f compose.prod.yml -p onestop-backend up --build -d --remove-orphans
+#             docker compose -f compose.prod.yml -p onestop-backend up --build -d --remove-orphans
