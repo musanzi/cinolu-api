@@ -25,7 +25,7 @@ import {
 import { CreateActivityDto, UpdateActivityDto } from '../dto';
 import { Activity } from '../entities';
 import { IFilterActivities } from '../interfaces';
-import { FindActivities, FindActivityById, FindPublishedActivityBySlug, FindRecentActivities } from '../queries';
+import { FindActivities, FindActivityById, FindActivityBySlug, FindRecentActivities } from '../queries';
 
 @Controller('activities')
 export class ActivitiesController extends AbstractController {
@@ -62,7 +62,7 @@ export class ActivitiesController extends AbstractController {
   @Get(':slug')
   @Public()
   findOnePublished(@Param('slug') slug: string): Promise<Activity> {
-    return this.queryHandler.execute(new FindPublishedActivityBySlug(slug));
+    return this.queryHandler.execute(new FindActivityBySlug(slug));
   }
 
   @Post(':id/cover')

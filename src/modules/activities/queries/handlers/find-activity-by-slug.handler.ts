@@ -3,18 +3,18 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Activity } from '../../entities';
-import { FindPublishedActivityBySlug } from '../impl';
+import { FindActivityBySlug } from '../impl';
 
-@QueryHandler(FindPublishedActivityBySlug)
-export class FindPublishedActivityBySlugHandler implements IQueryHandler<FindPublishedActivityBySlug, Activity> {
-  private readonly logger = new Logger(FindPublishedActivityBySlugHandler.name);
+@QueryHandler(FindActivityBySlug)
+export class FindActivityBySlugHandler implements IQueryHandler<FindActivityBySlug, Activity> {
+  private readonly logger = new Logger(FindActivityBySlugHandler.name);
 
   constructor(
     @InjectRepository(Activity)
     private readonly repository: Repository<Activity>
   ) {}
 
-  async execute(query: FindPublishedActivityBySlug): Promise<Activity> {
+  async execute(query: FindActivityBySlug): Promise<Activity> {
     try {
       return await this.repository.findOneOrFail({
         where: { slug: query.slug, isPublished: true },
