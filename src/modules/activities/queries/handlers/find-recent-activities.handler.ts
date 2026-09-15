@@ -23,7 +23,7 @@ export class FindRecentActivitiesHandler implements IQueryHandler<FindRecentActi
         .leftJoinAndSelect('activity.types', 'type')
         .leftJoinAndSelect('activity.categories', 'category')
         .where('activity.isPublished = true')
-        .andWhere('activity.startDate <= :now AND activity.endDate >= :now', { now: new Date() })
+        .andWhere('activity.startDate <= :now', { now: new Date() })
         .orderBy('activity.startDate', 'DESC')
         .take(5)
         .getMany();
