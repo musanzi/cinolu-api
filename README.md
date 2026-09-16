@@ -1,75 +1,45 @@
 # OneStop API
 
-Backend for OneStop, an activity and program management platform. The API manages portfolios, programs, activities, registrations, reviews, users, and roles through a session-authenticated NestJS application.
+OneStop is a platform for managing portfolios, programs, activities, and ventures. This NestJS API handles user accounts, activity participation and reviews, venture submissions, and staff administration.
 
-## What the application does
+## Features
 
-- Organizes programs inside portfolios.
-- Assigns one or more users as program managers.
-- Creates activities with a type, categories, schedule, participation form, and review form.
-- Lets authenticated users register for ongoing activities and submit one review per activity.
-- Lets program managers and administrators manage activities, registrations, review results, and CSV exports.
-- Provides local and Google authentication, account management, password reset emails, role-based access control, and user CSV import/export.
+- Organize programs within portfolios and manage activities with types, categories, schedules, participation forms, and review forms.
+- Publish activities for public browsing. Signed-in users can submit participations and reviews.
+- Let users submit ventures with logos and cover images; staff can review their status.
+- Manage users, roles, sectors, and platform statistics. Staff can import and export users as CSV.
+- Sign in with email/password or Google, manage profiles, and reset passwords by email.
 
-## Technology
-
-- Node.js 24 and TypeScript
-- NestJS 11 with Express 5
-- Nest CQRS commands, queries, and events
-- PostgreSQL 18 with TypeORM
-- Redis 8-backed sessions with Passport
-- Local and Google OAuth authentication
-- Nodemailer, Pino, class-validator, and fast-csv
-- pnpm, ESLint, Prettier, Husky, Docker, and Docker Compose
-
-## Domain and access model
-
-```text
-Portfolio
-  └── Program
-        ├── Program managers (users)
-        └── Activity
-              ├── Type
-              ├── Categories
-              ├── Participation form → user participations
-              └── Review form        → user reviews
-```
-
-## Prerequisites
-
-- Node.js 24+
-- pnpm
-- PostgreSQL and Redis, or Docker with Docker Compose
+The API uses NestJS 11, TypeScript, CQRS, TypeORM, PostgreSQL 18, Redis 8-backed sessions, Passport, and pnpm. Uploaded files are served from `/uploads`.
 
 ## Quick start with Docker
 
-Create the environment file and fill in the required values:
+Docker with Compose is required. Copy the environment template:
 
 ```bash
 cp .env.example .env
 ```
 
-When the API runs in Compose, use the service names for its dependencies:
+Set the database credentials, `SESSION_SECRET`, `SESSION_MAX_AGE` (milliseconds), `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in `.env`. For the Compose stack, set:
 
 ```env
+PORT=8000
 DB_HOST=db
+DB_PORT=5432
 REDIS_URL=redis://redis:6379
 ```
+
+Configure the mail, Google OAuth, and `FRONTEND_URI` values for the corresponding authentication and email flows. Use nonempty, private secrets and passwords. The API and database containers use the same `DB_USERNAME`, `DB_PASSWORD`, and `DB_NAME` values from `.env`.
 
 Start the development stack:
 
 ```bash
-docker compose -f compose.dev.yml up --build
+docker compose -f compose.dev.yml up --build -d
 ```
 
-The stack includes:
+This starts the API at `http://localhost:8000` (or your `PORT`), PostgreSQL and Redis on the Compose network, and Adminer at `http://localhost:8080`. The API source is mounted into the container and runs in watch mode.
 
-- API at `http://localhost:${PORT}`
-- PostgreSQL on the internal Compose network
-- Redis on the internal Compose network
-- Adminer at `http://localhost:8080`
-
-Apply the database migration and optionally load the development users:
+Build the app, apply the existing database migration, and seed the roles and initial staff account:
 
 ```bash
 docker compose -f compose.dev.yml exec api pnpm build
@@ -77,68 +47,51 @@ docker compose -f compose.dev.yml exec api pnpm db:up
 docker compose -f compose.dev.yml exec api pnpm db:seed
 ```
 
-The seed creates these accounts:
-
-- `admin@admin.com` / `admin1234`
-- `user@user.com` / `user1234`
-
-Do not use the seeded passwords outside local development.
+The seed uses `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`. Run it only where that account should exist; running it again updates the account's password and staff role.
 
 ## Local development
 
-Install dependencies and create the environment file:
+With Node.js 24+, pnpm, PostgreSQL, and Redis installed, create `.env` from the template and point `DB_HOST` and `REDIS_URL` to your local services. Then run:
 
 ```bash
 pnpm install
-cp .env.example .env
+pnpm build
+pnpm db:up
+pnpm start:dev
 ```
 
-## Scripts
+The API listens on `PORT`, defaulting to `3000` if it is unset.
 
-| Command                             | Description                              |
-| ----------------------------------- | ---------------------------------------- |
-| `pnpm start`                        | Start NestJS once.                       |
-| `pnpm start:dev`                    | Start NestJS in watch mode.              |
-| `pnpm start:debug`                  | Start watch mode with the Node debugger. |
-| `pnpm build`                        | Compile the application to `dist`.       |
-| `pnpm start:prod`                   | Run the compiled application.            |
-| `pnpm lint`                         | Run ESLint and apply safe fixes.         |
-| `pnpm format`                       | Format TypeScript files under `src`.     |
-| `name=my_migration pnpm db:migrate` | Generate a TypeORM migration.            |
-| `pnpm db:up`                        | Apply pending migrations.                |
-| `pnpm db:down`                      | Revert the latest migration.             |
-| `pnpm db:seed`                      | Seed the local admin and user accounts.  |
+## Database and scripts
+
+TypeORM migrations live in `src/modules/database/migrations/`. The database schema is managed by migrations; TypeORM synchronization is disabled. Build before running migration or seed scripts because the TypeORM configuration loads compiled entities and migrations from `dist`.
+
+| Command           | Purpose                                        |
+| ----------------- | ---------------------------------------------- |
+| `pnpm start:dev`  | Run the API in watch mode.                     |
+| `pnpm build`      | Compile to `dist`.                             |
+| `pnpm start:prod` | Run the compiled API.                          |
+| `pnpm db:up`      | Apply pending migrations.                      |
+| `pnpm db:down`    | Revert the latest migration.                   |
+| `pnpm db:seed`    | Create roles and the configured staff account. |
+| `pnpm lint`       | Run ESLint with automatic fixes.               |
+| `pnpm format`     | Format source TypeScript files.                |
+
+## Production with Docker
+
+After configuring `.env`, start the production stack and apply migrations:
+
+```bash
+docker compose -f compose.prod.yml up --build -d
+docker compose -f compose.prod.yml exec api pnpm db:up
+```
+
+The production image is already compiled. PostgreSQL and Redis are accessible only on the Compose network. Their data is stored in the `postgres_data` and `redis_data` volumes; uploaded files are stored in `uploads_data`. `docker compose -f compose.prod.yml down` leaves these volumes intact.
 
 ## Project structure
 
-```text
-src/
-├── main.ts                     # HTTP, CORS, validation, Redis sessions, Passport
-├── app.module.ts               # root modules, logging, mail, throttling, global guards
-├── modules/
-│   ├── activities/             # activities, types, categories, and access rules
-│   ├── auth/                   # sessions, local/Google auth, password flows
-│   ├── database/               # TypeORM configuration, migrations, seeds
-│   ├── participations/         # registration submissions, statuses, CSV export
-│   ├── portfolios/             # portfolio management
-│   ├── programs/               # programs and manager assignments
-│   ├── reviews/                # review submissions and aggregate statistics
-│   ├── roles/                  # role administration
-│   ├── stats/                  # administration totals
-│   └── users/                  # users, avatars, CSV import/export
-└── shared/
-    ├── abstracts/              # common entity and controller bases
-    ├── helpers/                # pagination, uploads, CSV, email templates
-    └── interfaces/             # shared contracts
-```
+Feature modules live under `src/modules/`, including `auth`, `users`, `roles`, `portfolios`, `programs`, `activities`, `categories`, `types`, `sectors`, `ventures`, `participations`, `reviews`, and `stats`. Database configuration, migrations, and the seed script are under `src/modules/database/`.
 
-Feature modules follow CQRS and barrel exports. Reads live under `queries`, writes under `commands`, and side effects may use `events`. Controllers, DTOs, entities, interfaces, and reusable helpers remain in their dedicated folders. Cross-module data access is performed through the owning module's queries or commands rather than by injecting another module's repository.
+Modules use CQRS: read operations live in `queries`, state changes in `commands`, and side effects may use `events`. Controllers, DTOs, entities, interfaces, and shared helpers have their own folders. Modules access another module's data through its queries or commands.
 
-## Runtime notes
-
-- Global validation transforms request values using Nest's `ValidationPipe`.
-- Authentication, role checks, and throttling are global guards.
-- The rate limit is 50 requests per 60 seconds.
-- Redis session keys use the `sess:` prefix; cookies use `SameSite=Lax`.
-- PostgreSQL and Redis data are persisted in named Compose volumes.
-- Production Compose also persists uploaded files in the `uploads_data` volume.
+Global validation, authentication, role checks, and request throttling are configured in `src/app.module.ts` and `src/main.ts`. The rate limit is 50 requests per 60 seconds. Sessions are stored in Redis with the `sess:` prefix and use `SameSite=Lax` cookies.
