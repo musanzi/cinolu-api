@@ -1,0 +1,18 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+export class RoleResponseDto {
+  @ApiProperty({ example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' })
+  id: string;
+
+  @ApiProperty({ example: 'mentor' })
+  name: string;
+
+  @ApiProperty({ format: 'date-time' })
+  createdAt: Date;
+
+  @ApiProperty({ format: 'date-time' })
+  updatedAt: Date;
+
+  @ApiProperty({ format: 'date-time', nullable: true, example: null })
+  deletedAt: Date | null;
+}
