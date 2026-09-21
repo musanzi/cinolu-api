@@ -7,8 +7,8 @@ export class FilterProgramsDto {
   @ApiPropertyOptional({ description: 'Filter by portfolio ID', format: 'uuid' })
   portfolioId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by manager ID', format: 'uuid' })
-  managerId?: string;
+  @ApiPropertyOptional({ description: 'Filter by portfolio slug' })
+  portfolioSlug?: string;
 
   @ApiPropertyOptional({ description: 'Page number', type: 'integer' })
   page?: number | string;

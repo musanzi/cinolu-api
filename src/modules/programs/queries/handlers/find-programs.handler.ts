@@ -29,10 +29,8 @@ export class FindProgramsHandler implements IQueryHandler<FindPrograms, [Program
       if (query.params.portfolioId) {
         builder.andWhere('program.portfolioId = :portfolioId', { portfolioId: query.params.portfolioId });
       }
-      if (query.params.managerId) {
-        builder.innerJoin('program.managers', 'filteredManager', 'filteredManager.id = :managerId', {
-          managerId: query.params.managerId
-        });
+      if (query.params.portfolioSlug) {
+        builder.andWhere('portfolio.slug = :portfolioSlug', { portfolioSlug: query.params.portfolioSlug });
       }
 
       return await builder

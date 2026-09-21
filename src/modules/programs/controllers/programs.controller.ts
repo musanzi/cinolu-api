@@ -86,6 +86,26 @@ export class ProgramsController extends AbstractController {
     return this.queryHandler.execute(new FindPrograms(query));
   }
 
+  @Get('portfolio/:slug')
+  @Public()
+  @ApiOperation({ summary: 'List programs by portfolio slug with pagination' })
+  @ApiParam({ name: 'slug', description: 'Slug of the portfolio' })
+  @ApiOkResponse({
+    description: 'Paginated list of programs in the portfolio: `items` is the page, `count` is the total number of matching programs',
+    schema: {
+      properties: {
+        items: { type: 'array', items: { $ref: getSchemaPath(ProgramResponseDto) } },
+        count: { type: 'integer' }
+      }
+    }
+  })
+  findByPortfolioSlug(
+    @Param('slug') slug: string,
+    @Query() query: FilterProgramsDto
+  ): Promise<[Program[], number]> {
+    return this.queryHandler.execute(new FindPrograms({ ...query, portfolioSlug: slug }));
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a program by ID' })
   @ApiParam({ name: 'id', description: 'ID of the program', format: 'uuid' })
