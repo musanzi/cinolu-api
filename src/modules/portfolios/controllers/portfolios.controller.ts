@@ -29,7 +29,7 @@ import { createDiskUploadOptions } from '@/shared/helpers';
 import { CreatePortfolio, DeletePortfolio, UpdatePortfolio, UploadPortfolioLogo } from '../commands';
 import { CreatePortfolioDto, FilterPortfoliosDto, PortfolioResponseDto, UpdatePortfolioDto } from '../dto';
 import { Portfolio } from '../entities';
-import { FindPortfolioById, FindPortfolios } from '../queries';
+import { FindPortfolioById, FindPortfolioBySlug, FindPortfolios } from '../queries';
 
 @ApiTags('portfolios')
 @Controller('portfolios')
@@ -77,6 +77,15 @@ export class PortfoliosController extends AbstractController {
   })
   findAll(@Query() query: FilterPortfoliosDto): Promise<[Portfolio[], number]> {
     return this.queryHandler.execute(new FindPortfolios(query));
+  }
+
+  @Get('slug/:slug')
+  @Public()
+  @ApiOperation({ summary: 'Get a portfolio by slug' })
+  @ApiParam({ name: 'slug', description: 'Slug of the portfolio', example: 'my-portfolio' })
+  @ApiOkResponse({ description: 'Portfolio with the given slug', type: PortfolioResponseDto })
+  findOneBySlug(@Param('slug') slug: string): Promise<Portfolio> {
+    return this.queryHandler.execute(new FindPortfolioBySlug(slug));
   }
 
   @Get(':id')
