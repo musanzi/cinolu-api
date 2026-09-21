@@ -29,7 +29,7 @@ import {
 import { CreateProgram, DeleteProgram, UpdateProgram, UploadProgramLogo } from '../commands';
 import { CreateProgramDto, FilterProgramsDto, ProgramResponseDto, UpdateProgramDto } from '../dto';
 import { Program } from '../entities';
-import { FindProgramById, FindPrograms, FindRecentPrograms } from '../queries';
+import { FindProgramById, FindProgramBySlug, FindPrograms, FindRecentPrograms } from '../queries';
 
 @ApiTags('programs')
 @Controller('programs')
@@ -104,6 +104,15 @@ export class ProgramsController extends AbstractController {
     @Query() query: FilterProgramsDto
   ): Promise<[Program[], number]> {
     return this.queryHandler.execute(new FindPrograms({ ...query, portfolioSlug: slug }));
+  }
+
+  @Get('slug/:slug')
+  @Public()
+  @ApiOperation({ summary: 'Get a program by slug' })
+  @ApiParam({ name: 'slug', description: 'Slug of the program', example: 'my-program' })
+  @ApiOkResponse({ description: 'Program with the given slug', type: ProgramResponseDto })
+  findOneBySlug(@Param('slug') slug: string): Promise<Program> {
+    return this.queryHandler.execute(new FindProgramBySlug(slug));
   }
 
   @Get(':id')
