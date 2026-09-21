@@ -24,7 +24,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -43,7 +42,6 @@ import { FindMyVentures, FindVentureById, FindVentures } from '../queries';
 @Controller('ventures')
 export class VenturesController extends AbstractController {
   @Post()
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new venture' })
   @ApiCreatedResponse({ description: 'The venture has been created', type: VentureResponseDto })
   create(@CurrentUser() user: IUserResponse, @Body() dto: CreateVentureDto): Promise<Venture> {
@@ -52,7 +50,6 @@ export class VenturesController extends AbstractController {
 
   @Get('')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List all ventures (paginated). Staff only.' })
   @ApiOkResponse({
     description: 'Paginated list of all ventures as a [items, count] tuple. Staff only.',
@@ -68,7 +65,6 @@ export class VenturesController extends AbstractController {
   }
 
   @Get('mine')
-  @ApiSecurity('session')
   @ApiOperation({ summary: "List the current user's ventures (paginated)" })
   @ApiOkResponse({
     description: "Paginated list of the current user's ventures as a [items, count] tuple.",
@@ -84,7 +80,6 @@ export class VenturesController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a venture by id' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ description: 'The venture', type: VentureResponseDto })
@@ -94,7 +89,6 @@ export class VenturesController extends AbstractController {
 
   @Patch(':id/status')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a venture status. Staff only.' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ description: 'The venture with its updated status. Staff only.', type: VentureResponseDto })
@@ -103,7 +97,6 @@ export class VenturesController extends AbstractController {
   }
 
   @Post(':id/logo')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload a venture logo' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiConsumes('multipart/form-data')
@@ -122,7 +115,6 @@ export class VenturesController extends AbstractController {
   }
 
   @Post(':id/cover')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload a venture cover image' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiConsumes('multipart/form-data')
@@ -141,20 +133,14 @@ export class VenturesController extends AbstractController {
   }
 
   @Patch(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a venture' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ description: 'The updated venture', type: VentureResponseDto })
-  update(
-    @CurrentUser() user: IUserResponse,
-    @Param('id') id: string,
-    @Body() dto: UpdateVentureDto
-  ): Promise<Venture> {
+  update(@CurrentUser() user: IUserResponse, @Param('id') id: string, @Body() dto: UpdateVentureDto): Promise<Venture> {
     return this.commandHandler.execute(new UpdateVenture(user.id, id, dto));
   }
 
   @Delete(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a venture' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiNoContentResponse({ description: 'The venture has been deleted' })

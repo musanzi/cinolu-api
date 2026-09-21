@@ -8,7 +8,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -22,7 +21,6 @@ import { FindTypeById, FindTypes } from '../queries';
 export class TypesController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create an activity type. Staff only.' })
   @ApiCreatedResponse({ description: 'Activity type created', type: TypeResponseDto })
   create(@Body() dto: CreateTypeDto): Promise<Type> {
@@ -30,7 +28,6 @@ export class TypesController extends AbstractController {
   }
 
   @Get()
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List activity types' })
   @ApiOkResponse({
     description: 'Paginated activity types: the items array and the total count',
@@ -46,7 +43,6 @@ export class TypesController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get an activity type by id' })
   @ApiParam({ name: 'id', description: 'Type id (UUID)' })
   @ApiOkResponse({ description: 'Activity type', type: TypeResponseDto })
@@ -56,7 +52,6 @@ export class TypesController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update an activity type. Staff only.' })
   @ApiParam({ name: 'id', description: 'Type id (UUID)' })
   @ApiOkResponse({ description: 'Updated activity type', type: TypeResponseDto })
@@ -66,7 +61,6 @@ export class TypesController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete an activity type. Staff only.' })
   @ApiParam({ name: 'id', description: 'Type id (UUID)' })
   @ApiNoContentResponse({ description: 'Activity type deleted' })

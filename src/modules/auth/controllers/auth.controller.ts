@@ -7,7 +7,6 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiSecurity,
   ApiTags
 } from '@nestjs/swagger';
 import { AbstractController } from '@/shared/abstracts';
@@ -60,7 +59,6 @@ export class AuthController extends AbstractController {
   }
 
   @Post('signout')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Sign out the current session' })
   @ApiNoContentResponse({ description: 'Signed out' })
   signOut(@Req() req: Request): Promise<void> {
@@ -68,7 +66,6 @@ export class AuthController extends AbstractController {
   }
 
   @Get('me')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get the current user profile' })
   @ApiOkResponse({ description: 'Current user profile', type: UserResponseDto })
   profile(@CurrentUser() user: User): Promise<IUserResponse> {
@@ -76,7 +73,6 @@ export class AuthController extends AbstractController {
   }
 
   @Patch('me/update')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update the current user profile' })
   @ApiOkResponse({ description: 'Updated user profile', type: UserResponseDto })
   updateProfile(@CurrentUser() user: User, @Body() dto: UpdateUserDto): Promise<IUserResponse> {
@@ -84,7 +80,6 @@ export class AuthController extends AbstractController {
   }
 
   @Patch('password/update')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update the current user password' })
   @ApiOkResponse({ description: 'Updated user profile', type: UserResponseDto })
   updatePassword(@CurrentUser() user: User, @Body() dto: UpdatePasswordDto): Promise<IUserResponse> {

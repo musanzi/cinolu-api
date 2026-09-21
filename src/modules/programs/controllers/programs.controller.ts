@@ -23,7 +23,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -37,7 +36,6 @@ import { FindProgramById, FindPrograms, FindRecentPrograms } from '../queries';
 export class ProgramsController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new program (Staff only)' })
   @ApiCreatedResponse({ description: 'Program created', type: ProgramResponseDto })
   create(@Body() dto: CreateProgramDto): Promise<Program> {
@@ -54,7 +52,6 @@ export class ProgramsController extends AbstractController {
 
   @Post(':id/logo')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload a program logo (Staff only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -90,7 +87,6 @@ export class ProgramsController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a program by ID' })
   @ApiParam({ name: 'id', description: 'ID of the program', format: 'uuid' })
   @ApiOkResponse({ description: 'Program with the given ID', type: ProgramResponseDto })
@@ -100,7 +96,6 @@ export class ProgramsController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a program (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the program', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated program', type: ProgramResponseDto })
@@ -110,7 +105,6 @@ export class ProgramsController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a program (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the program', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Program deleted' })

@@ -8,7 +8,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -22,7 +21,6 @@ import { FindCategories, FindCategoryById } from '../queries';
 export class CategoriesController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a category', description: 'Staff only.' })
   @ApiCreatedResponse({ description: 'Category created', type: CategoryResponseDto })
   create(@Body() dto: CreateCategoryDto): Promise<Category> {
@@ -30,7 +28,6 @@ export class CategoriesController extends AbstractController {
   }
 
   @Get()
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List categories' })
   @ApiOkResponse({
     description: 'Paginated list of categories returned as a [items, count] tuple',
@@ -46,7 +43,6 @@ export class CategoriesController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a category by id' })
   @ApiParam({ name: 'id', description: 'Category id', format: 'uuid' })
   @ApiOkResponse({ description: 'Category details', type: CategoryResponseDto })
@@ -56,7 +52,6 @@ export class CategoriesController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a category', description: 'Staff only.' })
   @ApiParam({ name: 'id', description: 'Category id', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated category', type: CategoryResponseDto })
@@ -66,7 +61,6 @@ export class CategoriesController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a category', description: 'Staff only.' })
   @ApiParam({ name: 'id', description: 'Category id', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Category deleted' })

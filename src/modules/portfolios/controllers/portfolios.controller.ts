@@ -19,7 +19,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -37,7 +36,6 @@ import { FindPortfolioById, FindPortfolios } from '../queries';
 export class PortfoliosController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new portfolio (Staff only)' })
   @ApiCreatedResponse({ description: 'Portfolio created', type: PortfolioResponseDto })
   create(@Body() dto: CreatePortfolioDto): Promise<Portfolio> {
@@ -46,7 +44,6 @@ export class PortfoliosController extends AbstractController {
 
   @Post(':id/logo')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload a portfolio logo (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the portfolio', format: 'uuid' })
   @ApiConsumes('multipart/form-data')
@@ -69,7 +66,8 @@ export class PortfoliosController extends AbstractController {
   @Public()
   @ApiOperation({ summary: 'List portfolios with pagination and search' })
   @ApiOkResponse({
-    description: 'Paginated list of portfolios: `items` is the page, `count` is the total number of matching portfolios',
+    description:
+      'Paginated list of portfolios: `items` is the page, `count` is the total number of matching portfolios',
     schema: {
       properties: {
         items: { type: 'array', items: { $ref: getSchemaPath(PortfolioResponseDto) } },
@@ -82,7 +80,6 @@ export class PortfoliosController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a portfolio by ID' })
   @ApiParam({ name: 'id', description: 'ID of the portfolio', format: 'uuid' })
   @ApiOkResponse({ description: 'Portfolio details', type: PortfolioResponseDto })
@@ -92,7 +89,6 @@ export class PortfoliosController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a portfolio (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the portfolio', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated portfolio', type: PortfolioResponseDto })
@@ -102,7 +98,6 @@ export class PortfoliosController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a portfolio (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the portfolio', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Portfolio deleted' })

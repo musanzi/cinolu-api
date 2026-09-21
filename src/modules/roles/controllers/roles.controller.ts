@@ -5,7 +5,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -22,7 +21,6 @@ import { FindRoleById, FindRoles } from '../queries';
 export class RolesController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new role (Staff only)' })
   @ApiCreatedResponse({ description: 'Role created', type: RoleResponseDto })
   create(@Body() dto: CreateRoleDto): Promise<Role> {
@@ -31,7 +29,6 @@ export class RolesController extends AbstractController {
 
   @Get()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List roles with pagination and search (Staff only)' })
   @ApiOkResponse({
     description: 'Paginated list of roles: `items` is the page, `count` is the total number of matching roles',
@@ -48,7 +45,6 @@ export class RolesController extends AbstractController {
 
   @Get(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a role by ID (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the role', format: 'uuid' })
   @ApiOkResponse({ description: 'Role with the given ID', type: RoleResponseDto })
@@ -58,7 +54,6 @@ export class RolesController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a role (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the role', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated role', type: RoleResponseDto })
@@ -68,7 +63,6 @@ export class RolesController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a role (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the role', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Role deleted' })

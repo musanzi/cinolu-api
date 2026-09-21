@@ -21,7 +21,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiProduces,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -42,7 +41,6 @@ import { ExportUsersCsv, FindMentors, FindStaff, FindUserByEmail, FindUsers } fr
 export class UsersController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new user (Staff only)' })
   @ApiCreatedResponse({ description: 'User created', type: UserResponseDto })
   create(@Body() dto: CreateUserDto): Promise<IUserResponse> {
@@ -51,7 +49,6 @@ export class UsersController extends AbstractController {
 
   @Get()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List users with pagination and search (Staff only)' })
   @ApiOkResponse({
     description: 'Paginated list of users: `items` is the page, `count` is the total number of matching users',
@@ -67,7 +64,6 @@ export class UsersController extends AbstractController {
   }
 
   @Get('staff')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List all staff users' })
   @ApiOkResponse({ description: 'List of staff users', type: [UserResponseDto] })
   findStaff(): Promise<IUserResponse[]> {
@@ -75,7 +71,6 @@ export class UsersController extends AbstractController {
   }
 
   @Get('mentors')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List all mentor users' })
   @ApiOkResponse({ description: 'List of mentor users', type: [UserResponseDto] })
   findMentors(): Promise<IUserResponse[]> {
@@ -84,7 +79,6 @@ export class UsersController extends AbstractController {
 
   @Post('import/csv')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Import users from a CSV file (Staff only)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -104,16 +98,17 @@ export class UsersController extends AbstractController {
 
   @Get('export/csv')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Export users as a CSV file (Staff only)' })
   @ApiProduces('text/csv')
-  @ApiOkResponse({ description: 'CSV file of users (Name, Email)', content: { 'text/csv': { schema: { type: 'string', format: 'binary' } } } })
+  @ApiOkResponse({
+    description: 'CSV file of users (Name, Email)',
+    content: { 'text/csv': { schema: { type: 'string', format: 'binary' } } }
+  })
   async exportCSV(@Query() query: FilterUsersDto, @Res() res: Response): Promise<void> {
     await this.queryHandler.execute(new ExportUsersCsv(query, res));
   }
 
   @Post('profile/avatar')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload the current user avatar' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -133,7 +128,6 @@ export class UsersController extends AbstractController {
 
   @Get(':email')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a user by email (Staff only)' })
   @ApiParam({ name: 'email', description: 'Email address of the user', example: 'jane.doe@example.com' })
   @ApiOkResponse({ description: 'User with the given email', type: UserResponseDto })
@@ -143,7 +137,6 @@ export class UsersController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a user (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the user', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated user', type: UserResponseDto })
@@ -153,7 +146,6 @@ export class UsersController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a user (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the user', format: 'uuid' })
   @ApiNoContentResponse({ description: 'User deleted' })

@@ -8,7 +8,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -22,7 +21,6 @@ import { FindSectorById, FindSectors } from '../queries';
 export class SectorsController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a sector. Staff only.' })
   @ApiCreatedResponse({ description: 'Sector created', type: SectorResponseDto })
   create(@Body() dto: CreateSectorDto): Promise<Sector> {
@@ -30,7 +28,6 @@ export class SectorsController extends AbstractController {
   }
 
   @Get()
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List sectors' })
   @ApiOkResponse({
     description: 'Paginated sectors: the items array and the total count',
@@ -46,7 +43,6 @@ export class SectorsController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a sector by id' })
   @ApiParam({ name: 'id', description: 'Sector id (UUID)' })
   @ApiOkResponse({ description: 'Sector', type: SectorResponseDto })
@@ -56,7 +52,6 @@ export class SectorsController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a sector. Staff only.' })
   @ApiParam({ name: 'id', description: 'Sector id (UUID)' })
   @ApiOkResponse({ description: 'Updated sector', type: SectorResponseDto })
@@ -66,7 +61,6 @@ export class SectorsController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete a sector. Staff only.' })
   @ApiParam({ name: 'id', description: 'Sector id (UUID)' })
   @ApiNoContentResponse({ description: 'Sector deleted' })

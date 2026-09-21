@@ -2,17 +2,17 @@ import { CurrentUser, HasRoles } from '@/modules/auth/decorators';
 import { Roles } from '@/modules/auth/enums';
 import { IUserResponse } from '@/modules/users/interfaces';
 import { AbstractController } from '@/shared/abstracts';
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
-import { CreateParticipation, UpdateParticipation, UpdateParticipationStatus } from '../commands';
+import { CreateParticipation, DeleteParticipation, UpdateParticipation, UpdateParticipationStatus } from '../commands';
 import {
   CreateParticipationDto,
   FilterParticipationsDto,
@@ -27,7 +27,6 @@ import { FindMyParticipations, FindParticipationById, FindParticipations } from 
 @Controller('participations')
 export class ParticipationsController extends AbstractController {
   @Post()
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a participation' })
   @ApiCreatedResponse({ description: 'Participation created', type: ParticipationResponseDto })
   create(@CurrentUser() user: IUserResponse, @Body() dto: CreateParticipationDto): Promise<Participation> {
@@ -35,7 +34,6 @@ export class ParticipationsController extends AbstractController {
   }
 
   @Get('mine')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List my participations' })
   @ApiOkResponse({
     description: 'Paginated list of the current user participations returned as a [items, count] tuple',
@@ -55,7 +53,6 @@ export class ParticipationsController extends AbstractController {
 
   @Get('staff')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List participations', description: 'Staff only.' })
   @ApiOkResponse({
     description: 'Paginated list of participations returned as a [items, count] tuple',
@@ -71,7 +68,6 @@ export class ParticipationsController extends AbstractController {
   }
 
   @Get(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get a participation by id' })
   @ApiParam({ name: 'id', description: 'Participation id', format: 'uuid' })
   @ApiOkResponse({ description: 'Participation details', type: ParticipationResponseDto })
@@ -81,7 +77,6 @@ export class ParticipationsController extends AbstractController {
 
   @Patch(':id/status')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a participation status', description: 'Staff only.' })
   @ApiParam({ name: 'id', description: 'Participation id', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated participation', type: ParticipationResponseDto })
@@ -90,11 +85,19 @@ export class ParticipationsController extends AbstractController {
   }
 
   @Patch(':id')
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update a participation' })
   @ApiParam({ name: 'id', description: 'Participation id', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated participation', type: ParticipationResponseDto })
   update(@Param('id') id: string, @Body() dto: UpdateParticipationDto): Promise<Participation> {
     return this.commandHandler.execute(new UpdateParticipation(id, dto));
+  }
+
+  @Delete(':id')
+  @HasRoles([Roles.STAFF])
+  @ApiOperation({ summary: 'Delete a participation' })
+  @ApiParam({ name: 'id', description: 'Participation id', format: 'uuid' })
+  @ApiNoContentResponse({ description: 'The participation has been deleted' })
+  remove(@Param('id') id: string): Promise<void> {
+    return this.commandHandler.execute(new DeleteParticipation(id));
   }
 }

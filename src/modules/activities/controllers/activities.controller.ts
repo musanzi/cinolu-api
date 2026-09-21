@@ -23,7 +23,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiSecurity,
   ApiTags,
   getSchemaPath
 } from '@nestjs/swagger';
@@ -43,7 +42,6 @@ import { FindActivities, FindActivityById, FindActivityBySlug, FindRecentActivit
 export class ActivitiesController extends AbstractController {
   @Post()
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Create a new activity (Staff only)' })
   @ApiCreatedResponse({ description: 'Activity created', type: ActivityResponseDto })
   create(@Body() dto: CreateActivityDto): Promise<Activity> {
@@ -54,7 +52,8 @@ export class ActivitiesController extends AbstractController {
   @Public()
   @ApiOperation({ summary: 'List published activities with pagination and search' })
   @ApiOkResponse({
-    description: 'Paginated list of published activities: `items` is the page, `count` is the total number of matching activities',
+    description:
+      'Paginated list of published activities: `items` is the page, `count` is the total number of matching activities',
     schema: {
       properties: {
         items: { type: 'array', items: { $ref: getSchemaPath(ActivityResponseDto) } },
@@ -76,10 +75,10 @@ export class ActivitiesController extends AbstractController {
 
   @Get('staff')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'List all activities with pagination and search (Staff only)' })
   @ApiOkResponse({
-    description: 'Paginated list of activities: `items` is the page, `count` is the total number of matching activities',
+    description:
+      'Paginated list of activities: `items` is the page, `count` is the total number of matching activities',
     schema: {
       properties: {
         items: { type: 'array', items: { $ref: getSchemaPath(ActivityResponseDto) } },
@@ -93,7 +92,6 @@ export class ActivitiesController extends AbstractController {
 
   @Get('staff/:id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Get any activity by ID (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the activity', format: 'uuid' })
   @ApiOkResponse({ description: 'Activity with the given ID', type: ActivityResponseDto })
@@ -112,7 +110,6 @@ export class ActivitiesController extends AbstractController {
 
   @Post(':id/cover')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Upload the cover image of an activity (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the activity', format: 'uuid' })
   @ApiConsumes('multipart/form-data')
@@ -133,7 +130,6 @@ export class ActivitiesController extends AbstractController {
 
   @Patch(':id/publication')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Toggle the publication state of an activity (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the activity', format: 'uuid' })
   @ApiOkResponse({ description: 'Activity with the toggled publication state', type: ActivityResponseDto })
@@ -143,7 +139,6 @@ export class ActivitiesController extends AbstractController {
 
   @Patch(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Update an activity (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the activity', format: 'uuid' })
   @ApiOkResponse({ description: 'Updated activity', type: ActivityResponseDto })
@@ -153,7 +148,6 @@ export class ActivitiesController extends AbstractController {
 
   @Delete(':id')
   @HasRoles([Roles.STAFF])
-  @ApiSecurity('session')
   @ApiOperation({ summary: 'Delete an activity (Staff only)' })
   @ApiParam({ name: 'id', description: 'ID of the activity', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Activity deleted' })
