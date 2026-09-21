@@ -4,6 +4,9 @@ export class FilterActivitiesDto {
   @ApiPropertyOptional({ description: 'Filter by the ID of the parent program', format: 'uuid' })
   programId?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by the slug of the parent program' })
+  programSlug?: string;
+
   @ApiPropertyOptional({ description: 'Search activities by name' })
   q?: string;
 

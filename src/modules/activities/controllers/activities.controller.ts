@@ -99,6 +99,27 @@ export class ActivitiesController extends AbstractController {
     return this.queryHandler.execute(new FindActivityById(id));
   }
 
+  @Get('programs/:slug')
+  @Public()
+  @ApiOperation({ summary: 'List published activities of a program by slug' })
+  @ApiParam({ name: 'slug', description: 'Slug of the parent program' })
+  @ApiOkResponse({
+    description:
+      'Paginated list of published activities in the program: `items` is the page, `count` is the total number of matching activities',
+    schema: {
+      properties: {
+        items: { type: 'array', items: { $ref: getSchemaPath(ActivityResponseDto) } },
+        count: { type: 'integer' }
+      }
+    }
+  })
+  findByProgramSlug(
+    @Param('slug') slug: string,
+    @Query() query: FilterActivitiesDto
+  ): Promise<[Activity[], number]> {
+    return this.queryHandler.execute(new FindActivities({ ...query, programSlug: slug }, true));
+  }
+
   @Get(':slug')
   @Public()
   @ApiOperation({ summary: 'Get a published activity by slug' })
