@@ -6,7 +6,7 @@ import { Review } from '@/modules/reviews/entities';
 import { Type } from '@/modules/types/entities';
 import { AbstractEntity } from '@/shared/abstracts';
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
-import { ActivityForm } from '../interfaces';
+import { ActivityForm, ActivityResource } from '../interfaces';
 
 @Entity()
 export class Activity extends AbstractEntity {
@@ -33,6 +33,9 @@ export class Activity extends AbstractEntity {
 
   @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
   reviewForm: ActivityForm;
+
+  @Column({ type: 'jsonb', default: () => "'[]'::jsonb" })
+  resources: ActivityResource[];
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   cover?: string;

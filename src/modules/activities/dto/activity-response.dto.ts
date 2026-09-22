@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CategoryResponseDto } from '../../categories/dto';
 import { TypeResponseDto } from '../../types/dto';
 import { UserResponseDto } from '../../users/dto';
-import { ActivityForm } from '../interfaces';
+import { ActivityForm, ActivityResource } from '../interfaces';
 
 export class ActivityProgramResponseDto {
   @ApiProperty({ example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' })
@@ -57,6 +57,19 @@ export class ActivityResponseDto {
 
   @ApiProperty({ type: 'object', additionalProperties: true, example: { criteria: ['Originality'] } })
   reviewForm: ActivityForm;
+
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Google Meet' },
+        value: { type: 'string', example: 'https://meet.google.com/abc-defg-hij' }
+      }
+    },
+    example: [{ title: 'Google Meet', value: 'https://meet.google.com/abc-defg-hij' }]
+  })
+  resources: ActivityResource[];
 
   @ApiProperty({ example: null, nullable: true })
   cover?: string;

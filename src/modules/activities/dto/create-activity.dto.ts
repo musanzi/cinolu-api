@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { ArrayUnique, IsArray, IsBoolean, IsDate, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
-import { ActivityForm } from '../interfaces';
+import { ActivityForm, ActivityResource } from '../interfaces';
 
 export class CreateActivityDto {
   @IsString()
@@ -28,6 +28,9 @@ export class CreateActivityDto {
 
   @IsOptional()
   reviewForm: ActivityForm;
+
+  @IsOptional()
+  resources?: ActivityResource[];
 
   @IsUUID('4')
   programId: string;
