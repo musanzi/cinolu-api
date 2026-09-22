@@ -61,6 +61,7 @@ async function bootstrap(): Promise<void> {
     .addTag('portfolios', 'Program portfolios')
     .addTag('programs', 'Programs')
     .addTag('activities', 'Program activities')
+    .addTag('cohorts', 'Program cohorts')
     .addTag('participations', 'Activity participations')
     .addTag('reviews', 'Activity reviews')
     .addTag('ventures', 'User ventures')

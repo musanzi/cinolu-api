@@ -36,6 +36,10 @@ export class CreateActivityDto {
   programId: string;
 
   @IsOptional()
+  @IsUUID('4')
+  cohortId?: string;
+
+  @IsOptional()
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })

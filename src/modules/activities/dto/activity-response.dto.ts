@@ -14,7 +14,7 @@ export class ActivityProgramResponseDto {
   @ApiProperty({ example: 'incubation-program-2026' })
   slug: string;
 
-  @ApiProperty({ example: 'A six-month incubation program.', nullable: true, required: false })
+  @ApiProperty({ example: 'First cohort of the incubation program.', nullable: true, required: false })
   description?: string;
 
   @ApiProperty({ example: null, nullable: true })
@@ -28,6 +28,14 @@ export class ActivityProgramResponseDto {
 
   @ApiProperty({ format: 'date-time', nullable: true, example: null })
   deletedAt: Date | null;
+}
+
+export class ActivityCohortResponseDto {
+  @ApiProperty({ example: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d' })
+  id: string;
+
+  @ApiProperty({ example: 'Cohort 2026 - Batch 1' })
+  name: string;
 }
 
 export class ActivityResponseDto {
@@ -76,6 +84,9 @@ export class ActivityResponseDto {
 
   @ApiProperty({ type: ActivityProgramResponseDto })
   program: ActivityProgramResponseDto;
+
+  @ApiProperty({ type: ActivityCohortResponseDto, nullable: true, required: false })
+  cohort?: ActivityCohortResponseDto;
 
   @ApiProperty({ type: [UserResponseDto] })
   mentors: UserResponseDto[];

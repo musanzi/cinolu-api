@@ -21,6 +21,7 @@ export class FindActivitiesHandler implements IQueryHandler<FindActivities, [Act
       const builder = this.repository
         .createQueryBuilder('activity')
         .leftJoinAndSelect('activity.program', 'program')
+        .leftJoinAndSelect('activity.cohort', 'cohort')
         .leftJoinAndSelect('activity.mentors', 'mentor')
         .leftJoinAndSelect('activity.types', 'type')
         .leftJoinAndSelect('activity.categories', 'category')
@@ -31,6 +32,7 @@ export class FindActivitiesHandler implements IQueryHandler<FindActivities, [Act
       if (query.params.q) builder.andWhere('activity.name ILIKE :q', { q: `%${query.params.q}%` });
       if (query.params.programId) builder.andWhere('program.id = :programId', { programId: query.params.programId });
       if (query.params.programSlug) builder.andWhere('program.slug = :programSlug', { programSlug: query.params.programSlug });
+      if (query.params.cohortId) builder.andWhere('cohort.id = :cohortId', { cohortId: query.params.cohortId });
       if (query.params.startDate)
         builder.andWhere('activity.startDate >= :startDate', { startDate: query.params.startDate });
       if (query.params.endDate) builder.andWhere('activity.endDate <= :endDate', { endDate: query.params.endDate });

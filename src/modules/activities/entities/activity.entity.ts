@@ -1,5 +1,6 @@
 import { User } from '@/modules/users/entities';
 import { Category } from '@/modules/categories/entities';
+import { Cohort } from '@/modules/cohorts/entities';
 import { Participation } from '@/modules/participations/entities';
 import { Program } from '@/modules/programs/entities';
 import { Review } from '@/modules/reviews/entities';
@@ -43,6 +44,10 @@ export class Activity extends AbstractEntity {
   @ManyToOne(() => Program, (program) => program.activities, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn()
   program: Program;
+
+  @ManyToOne(() => Cohort, (cohort) => cohort.activities, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn()
+  cohort?: Cohort;
 
   @ManyToMany(() => User)
   @JoinTable({ name: 'activity_mentors' })

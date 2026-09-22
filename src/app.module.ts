@@ -19,6 +19,7 @@ import { ProgramsModule } from './modules/programs/programs.module';
 import { SectorsModule } from './modules/sectors/sectors.module';
 import { VenturesModule } from './modules/ventures/ventures.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
+import { CohortsModule } from './modules/cohorts/cohorts.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TypesModule } from './modules/types/types.module';
 import { ParticipationsModule } from './modules/participations/participations.module';
@@ -82,6 +83,7 @@ import { StatsModule } from './modules/stats/stats.module';
     SectorsModule,
     VenturesModule,
     ActivitiesModule,
+    CohortsModule,
     CategoriesModule,
     TypesModule,
     ParticipationsModule,

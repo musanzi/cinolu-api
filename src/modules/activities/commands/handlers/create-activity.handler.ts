@@ -1,3 +1,4 @@
+import { FindCohortById } from '@/modules/cohorts/queries';
 import { FindProgramById } from '@/modules/programs/queries';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
@@ -19,13 +20,15 @@ export class CreateActivityHandler implements ICommandHandler<CreateActivity, Ac
 
   async execute(command: CreateActivity): Promise<Activity> {
     try {
-      const { programId, mentorIds, typeIds, categoryIds, ...fields } = command.createActivityDto;
+      const { programId, cohortId, mentorIds, typeIds, categoryIds, ...fields } = command.createActivityDto;
       await this.queryBus.execute(new FindProgramById(programId));
+      if (cohortId) await this.queryBus.execute(new FindCohortById(cohortId));
 
       const created = await this.repository.save(
         this.repository.create({
           ...fields,
           program: { id: programId },
+          cohort: cohortId ? { id: cohortId } : undefined,
           mentors: mentorIds?.map((id) => ({ id })),
           types: typeIds?.map((id) => ({ id })),
           categories: categoryIds?.map((id) => ({ id }))

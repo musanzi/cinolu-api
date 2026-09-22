@@ -1,4 +1,5 @@
 import { Activity } from '@/modules/activities/entities';
+import { Cohort } from '@/modules/cohorts/entities';
 import { Portfolio } from '@/modules/portfolios/entities';
 import { User } from '@/modules/users/entities';
 import { AbstractEntity } from '@/shared/abstracts';
@@ -28,4 +29,7 @@ export class Program extends AbstractEntity {
 
   @OneToMany(() => Activity, (activity) => activity.program)
   activities: Activity[];
+
+  @OneToMany(() => Cohort, (cohort) => cohort.program)
+  cohorts: Cohort[];
 }
