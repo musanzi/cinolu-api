@@ -36,6 +36,7 @@ import {
 import { ActivityResponseDto, CreateActivityDto, FilterActivitiesDto, UpdateActivityDto } from '../dto';
 import { Activity } from '../entities';
 import { FindActivities, FindActivityById, FindActivityBySlug, FindRecentActivities } from '../queries';
+import { NoCache } from '@/shared/decorators';
 
 @ApiTags('activities')
 @Controller('activities')
@@ -113,14 +114,12 @@ export class ActivitiesController extends AbstractController {
       }
     }
   })
-  findByProgramSlug(
-    @Param('slug') slug: string,
-    @Query() query: FilterActivitiesDto
-  ): Promise<[Activity[], number]> {
+  findByProgramSlug(@Param('slug') slug: string, @Query() query: FilterActivitiesDto): Promise<[Activity[], number]> {
     return this.queryHandler.execute(new FindActivities({ ...query, programSlug: slug }, true));
   }
 
   @Get(':slug')
+  @NoCache()
   @Public()
   @ApiOperation({ summary: 'Get a published activity by slug' })
   @ApiParam({ name: 'slug', description: 'Slug of the activity', example: 'ai-workshop' })

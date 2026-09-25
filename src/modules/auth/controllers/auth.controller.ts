@@ -10,6 +10,7 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { AbstractController } from '@/shared/abstracts';
+import { NoCache } from '@/shared/decorators';
 import { User } from '../../users/entities/user.entity';
 import { IUserResponse } from '../../users/interfaces';
 import { UpdateUserDto, UserResponseDto } from '../../users/dto';
@@ -66,6 +67,7 @@ export class AuthController extends AbstractController {
   }
 
   @Get('me')
+  @NoCache()
   @ApiOperation({ summary: 'Get the current user profile' })
   @ApiOkResponse({ description: 'Current user profile', type: UserResponseDto })
   profile(@CurrentUser() user: User): Promise<IUserResponse> {

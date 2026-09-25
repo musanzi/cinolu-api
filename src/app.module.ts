@@ -25,7 +25,8 @@ import { TypesModule } from './modules/types/types.module';
 import { ParticipationsModule } from './modules/participations/participations.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { StatsModule } from './modules/stats/stats.module';
-import { CacheInterceptor, CacheManagerOptions, CacheModule } from '@nestjs/cache-manager';
+import { CacheManagerOptions, CacheModule } from '@nestjs/cache-manager';
+import { CacheInterceptor } from './shared/interceptors';
 import { createKeyv } from '@keyv/redis';
 import { Keyv } from 'keyv';
 import { KeyvCacheableMemory } from 'cacheable';
@@ -42,6 +43,7 @@ import { KeyvCacheableMemory } from 'cacheable';
     CacheModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
+        ttl: 60000,
         stores: [
           new Keyv({
             store: new KeyvCacheableMemory({ ttl: 60000, lruSize: 5000 })
